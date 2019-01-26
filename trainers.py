@@ -1,21 +1,22 @@
 from __future__ import print_function, absolute_import
 import time
 
-import torch
-from torch.autograd import Variable
-
-from .utils.meters import AverageMeter
+from evaluation_metrics import accuracy
+from utils.meters import AverageMeter
 
 
 
-class BaseTrainer(object):
-    def __init__(self, model, criterion):
-        super(BaseTrainer, self).__init__()
-        self.model = model
+
+class Trainer(object):
+    def __init__(self, img_model, diff_model, criterion):
+        super(Trainer, self).__init__()
+        self.img_model = img_model
+        self.diff_model = diff_model
         self.criterion = criterion
 
-    def train(self, epoch, data_loader, optimizer, print_freq=1):
-        self.model.train()
+    def train(self, epoch, data_loader, optimizer1, optimizer2, print_freq=1):
+        self.img_model.train()
+        self.diff_model.train()
 
         batch_time = AverageMeter()
         data_time = AverageMeter()
@@ -32,9 +33,11 @@ class BaseTrainer(object):
             losses.update(loss.item(), targets.size(0))
             precisions.update(prec1, targets.size(0))
 
-            optimizer.zero_grad()
+            optimizer1.zero_grad()
+            optimizer2.zero_grad()
             loss.backward()
-            optimizer.step()
+            optimizer1.step()
+            optimizer2.step()
 
             batch_time.update(time.time() - end)
             end = time.time()
@@ -52,31 +55,17 @@ class BaseTrainer(object):
                               precisions.val, precisions.avg))
 
     def _parse_data(self, inputs):
-        raise NotImplementedError
+        img, diff, target = inputs
+        img = img.float()
+        diff = diff.float()
+        # target = target.cuda()
+        return (img, diff), target
 
-    def _forward(self, inputs, targets):
-        raise NotImplementedError
-
-
-class Trainer(BaseTrainer):
-    def _parse_data(self, inputs):
-        imgs, _, pids, _ = inputs
-        inputs = [Variable(imgs)]
-        targets = Variable(pids.cuda())
-        return inputs, targets
-
-    def _forward(self, inputs, targets):
-        outputs = self.model(*inputs)
-        if isinstance(self.criterion, torch.nn.CrossEntropyLoss):
-            loss = self.criterion(outputs, targets)
-            prec, = accuracy(outputs.data, targets.data)
-            prec = prec[0]
-        elif isinstance(self.criterion, OIMLoss):
-            loss, outputs = self.criterion(outputs, targets)
-            prec, = accuracy(outputs.data, targets.data)
-            prec = prec[0]
-        elif isinstance(self.criterion, TripletLoss):
-            loss, prec = self.criterion(outputs, targets)
-        else:
-            raise ValueError("Unsupported loss:", self.criterion)
+    def _forward(self,inputs, targets):
+        img, diff = inputs
+        img_feature_map, img_outputs = self.img_model(img)
+        _, outputs = self.diff_model(diff, img_feature_map, img_outputs)
+        loss = self.criterion(outputs, targets)
+        prec, = accuracy(outputs, targets)
         return loss, prec
+

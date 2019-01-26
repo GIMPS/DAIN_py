@@ -1,30 +1,61 @@
-from .utils.meters import AverageMeter
-from collections import OrderedDict
-from .feature_extraction import extract_cnn_feature
+from evaluation_metrics import accuracy
+from utils.meters import AverageMeter
+import time
+
+class Evaluator(object):
+    def __init__(self, img_model, diff_model, criterion):
+        super(Evaluator, self).__init__()
+        self.img_model = img_model
+        self.diff_model = diff_model
+        self.criterion = criterion
+
+    def evaluate(self, data_loader, print_freq = 1):
+        self.img_model.eval()
+        self.diff_model.eval()
+
+        batch_time = AverageMeter()
+        data_time = AverageMeter()
+        losses = AverageMeter()
+        top1 = AverageMeter()
+        top3 = AverageMeter()
+
+        end = time.time()
+
+        for i, inputs in enumerate(data_loader):
+            data_time.update(time.time() - end)
+
+            inputs, targets = self._parse_data(inputs)
+            loss, prec1, prec3 = self._forward(inputs, targets)
+
+            losses.update(loss.data[0], targets.size(0))
+            top1.update(prec1, targets.size(0))
+            top3.update(prec3, targets.size(0))
 
 
-def extract_features(model, data_loader, print_freq=1, metric=None):
-    model.eval()
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
+            batch_time.update(time.time() - end)
+            end = time.time()
 
-    features = OrderedDict()
-    labels = OrderedDict()
+            if (i+1) % print_freq == 0:
+                print('Test: [{0}/{1}]\t'
+                      'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                      'Prec@3 {top3.val:.3f} ({top3.avg:.3f})'.format(
+                    i, len(data_loader), batch_time=batch_time, loss=losses,
+                    top1=top1, top3=top3))
 
-    for i, (imgs, fnames, pids, _) in enumerate(data_loader):
+    def _parse_data(self, inputs):
+        img, diff, target = inputs
+        img = img.float()
+        diff = diff.float()
+        return (img, diff), target
 
-        outputs = extract_cnn_feature(model, imgs)
-        for fname, output, pid in zip(fnames, outputs, pids):
-            features[fname] = output
-            labels[fname] = pid
+    def _forward(self,inputs, targets):
+        img, diff = inputs
+        img_feature_map, img_outputs = self.img_model(img)
+        _, outputs = self.diff_model(diff, img_feature_map, img_outputs)
+        loss = self.criterion(outputs, targets)
+        prec1, prec3 = accuracy(outputs, targets, topk=(1,3))
+        return loss, prec1, prec3
 
 
-        if (i + 1) % print_freq == 0:
-            print('Extract Features: [{}/{}]\t'
-                  'Time {:.3f} ({:.3f})\t'
-                  'Data {:.3f} ({:.3f})\t'
-                  .format(i + 1, len(data_loader),
-                          batch_time.val, batch_time.avg,
-                          data_time.val, data_time.avg))
-
-    return features, labels
