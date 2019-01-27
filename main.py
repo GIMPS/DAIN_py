@@ -212,7 +212,7 @@ if __name__ == '__main__':
                         help="input width, default: 128 for resnet*, "
                              "56 for inception")
     # model
-    parser.add_argument('-a', '--arch', type=str, default='resnet18',
+    parser.add_argument('-a', '--arch', type=str, default='resnet50',
                         choices=models.names())
     parser.add_argument('--features', type=int, default=0)
     parser.add_argument('--dropout', type=float, default=0.5)
