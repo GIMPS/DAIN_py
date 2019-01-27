@@ -1,6 +1,6 @@
 tmp/
-data/
 .idea/
 .DS_Store
 *.pyc
 /result_entry/
+/data/
