@@ -151,7 +151,7 @@ def main(args):
 
     diff_param_groups = [
         # {'params': diff_branch.low_level_modules.parameters(), 'lr_mult': 0},
-        {'params': diff_branch.modeul.high_level_modules.parameters(), 'lr_mult': 0.01},
+        {'params': diff_branch.module.high_level_modules.parameters(), 'lr_mult': 0.01},
         {'params': diff_branch.module.classifier.parameters(), 'lr_mult': 0.1},
     ]
 
