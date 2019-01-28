@@ -1,6 +1,6 @@
 """
 
-python main.py --logs-dir Resnet50-single_view
+python main_single_view.py --logs-dir Resnet50-single_view
 
 """
 

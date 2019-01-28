@@ -41,6 +41,7 @@ class Evaluator(object):
                       'Prec@3 {top3.val:.3f} ({top3.avg:.3f})'.format(
                     i, len(data_loader), batch_time=batch_time, loss=losses,
                     top1=top1, top3=top3))
+            return top1
 
     def _parse_data(self, inputs):
         img, target = inputs
