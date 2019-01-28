@@ -129,18 +129,6 @@ def main(args):
         print("=> Start epoch {}  best top1 {:.1%}"
               .format(start_epoch, best_top1))
 
-    img_param_groups = [
-        # {'params': img_branch.low_level_modules.parameters(), 'lr_mult': 0},
-        {'params': img_branch.high_level_modules.parameters(), 'lr_mult': 0.01},
-        {'params': img_branch.classifier.parameters(), 'lr_mult': 0.1},
-    ]
-
-    diff_param_groups = [
-        # {'params': diff_branch.low_level_modules.parameters(), 'lr_mult': 0},
-        {'params': diff_branch.high_level_modules.parameters(), 'lr_mult': 0.01},
-        {'params': diff_branch.classifier.parameters(), 'lr_mult': 0.1},
-    ]
-
     img_branch = nn.DataParallel(img_branch).cuda()
     diff_branch = nn.DataParallel(diff_branch).cuda()
 
@@ -154,6 +142,18 @@ def main(args):
         evaluator.evaluate(val_loader)
         return
 
+
+    img_param_groups = [
+        # {'params': img_branch.low_level_modules.parameters(), 'lr_mult': 0},
+        {'params': img_branch.module.high_level_modules.parameters(), 'lr_mult': 0.01},
+        {'params': img_branch.module.classifier.parameters(), 'lr_mult': 0.1},
+    ]
+
+    diff_param_groups = [
+        # {'params': diff_branch.low_level_modules.parameters(), 'lr_mult': 0},
+        {'params': diff_branch.modeul.high_level_modules.parameters(), 'lr_mult': 0.01},
+        {'params': diff_branch.module.classifier.parameters(), 'lr_mult': 0.1},
+    ]
 
     img_optimizer = torch.optim.SGD(img_param_groups, lr=args.lr,
                                 momentum=args.momentum,
