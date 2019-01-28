@@ -27,7 +27,7 @@ class Evaluator(object):
             inputs, targets = self._parse_data(inputs)
             loss, prec1, prec3 = self._forward(inputs, targets)
 
-            losses.update(loss.data[0], targets.size(0))
+            losses.update(loss.item(), targets.size(0))
             top1.update(prec1, targets.size(0))
             top3.update(prec3, targets.size(0))
 
