@@ -61,8 +61,8 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
         # normalizer,
     ])
 
-    a = Preprocessor(train_set, root=dataset.images_dir,
-                 transform_img=train_transformer_img, transform_diff=train_transformer_diff)
+    # a = Preprocessor(train_set, root=dataset.images_dir,
+    #              transform_img=train_transformer_img, transform_diff=train_transformer_diff)
     # p = a[800]
     # import cv2
     # img = p[0]
