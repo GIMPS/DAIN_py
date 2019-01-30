@@ -146,15 +146,15 @@ def main(args):
 
 
     img_param_groups = [
-        # {'params': img_branch.low_level_modules.parameters(), 'lr_mult': 0},
-        {'params': img_branch.module.high_level_modules.parameters(), 'lr_mult': 0.01},
-        {'params': img_branch.module.classifier.parameters(), 'lr_mult': 0.1},
+        {'params': img_branch.module.low_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': img_branch.module.high_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': img_branch.module.classifier.parameters(), 'lr_mult': 1},
     ]
 
     diff_param_groups = [
-        # {'params': diff_branch.low_level_modules.parameters(), 'lr_mult': 0},
-        {'params': diff_branch.module.high_level_modules.parameters(), 'lr_mult': 0.01},
-        {'params': diff_branch.module.classifier.parameters(), 'lr_mult': 0.1},
+        {'params': diff_branch.module.low_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': diff_branch.module.high_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': diff_branch.module.classifier.parameters(), 'lr_mult': 1},
     ]
 
     img_optimizer = torch.optim.SGD(img_param_groups, lr=args.lr,

@@ -30,7 +30,7 @@ class Dataset(object):
         self.val = self.file2_tuple_list(osp.join(self.split_path, 'testlist0' + str(self.split_id) + '.txt'))
         self.num_train_ids = len(self.train)
         self.num_val_ids = len(self.val)
-        print ('==> (Training video, Validation video):(', self.num_train_ids,self.num_val_ids ,')')
+        print ('==> (Training images, Validation images):(', self.num_train_ids,self.num_val_ids ,')')
         return self.train, self.val
 
     @property
