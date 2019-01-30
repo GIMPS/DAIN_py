@@ -29,8 +29,6 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
 
     normalizer = T.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
-
-    train_set = dataset.train
     num_classes = dataset.num_class
 
     train_transformer_img = T.Compose([
@@ -75,7 +73,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
     # cv2.imwrite('/Users/jason/Documents/GitHub/DAIN_py/tmp/diff.png', diff)
 
     train_loader = DataLoader(
-        Preprocessor(train_set, root=dataset.images_dir,
+        Preprocessor(dataset.train, root=dataset.images_dir,
                      transform_img=train_transformer_img, transform_diff=train_transformer_diff),
         batch_size=batch_size, num_workers=workers,
         shuffle=True, pin_memory=True, drop_last=True)

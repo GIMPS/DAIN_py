@@ -115,9 +115,9 @@ def main(args):
 
 
     img_param_groups = [
-        # {'params': img_branch.low_level_modules.parameters(), 'lr_mult': 0},
-        {'params': img_branch.module.high_level_modules.parameters(), 'lr_mult': 0.01},
-        {'params': img_branch.module.classifier.parameters(), 'lr_mult': 0.1},
+        {'params': img_branch.module.low_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': img_branch.module.high_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': img_branch.module.classifier.parameters(), 'lr_mult': 1},
     ]
 
 
