@@ -41,7 +41,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
 
     train_transformer_diff = T.Compose([
         # T.Resize((height, width)),
-        T.Grayscale(num_output_channels=3),
+        # T.Grayscale(num_output_channels=3),
         T.ToTensor(),
         # normalizer,
     ])
@@ -56,7 +56,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
     test_transformer_diff = T.Compose([
         # T.Resize((height, width)),
         # T.RectScale(height, width),
-        T.Grayscale(num_output_channels=3),
+        # T.Grayscale(num_output_channels=3),
         T.ToTensor(),
         # normalizer,
     ])
@@ -131,6 +131,8 @@ def main(args):
 
     img_branch = nn.DataParallel(img_branch).cuda()
     diff_branch = nn.DataParallel(diff_branch).cuda()
+    # img_branch = nn.DataParallel(img_branch)
+    # diff_branch = nn.DataParallel(diff_branch)
 
     # Criterion
     criterion = nn.CrossEntropyLoss().cuda()
