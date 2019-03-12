@@ -96,7 +96,7 @@ def main(args):
 
     img_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes)
 
-    args.resume = "/Users/jason/Documents/GitHub/DAIN_py/logs/Resnet50-single_view-split1/model_best.pth.tar"
+    args.resume = "/mnt/lustre/renjiawei/DAIN_py/logs/Resnet50-single_view-split1/model_best.pth.tar"
 
     # Load from checkpoint
     start_epoch = best_top1 = 0
