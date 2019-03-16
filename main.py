@@ -31,33 +31,62 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
                              std=[0.229, 0.224, 0.225])
     num_classes = dataset.num_class
 
-    train_transformer_img = T.Compose([
-        # T.Resize((height, width)),
-        T.ToTensor(),
-        # normalizer,
-    ])
+    if name == "GTOS_256":
 
-    train_transformer_diff = T.Compose([
-        # T.Resize((height, width)),
-        # T.Grayscale(num_output_channels=3),
-        T.ToTensor(),
-        # normalizer,
-    ])
+        train_transformer_img = T.Compose([
+            # T.Resize((height, width)),
+            T.ToTensor(),
+            # normalizer,
+        ])
 
-    test_transformer_img = T.Compose([
-        # T.Resize((height, width)),
-        # T.RectScale(height, width),
-        T.ToTensor(),
-        # normalizer,
-    ])
+        train_transformer_diff = T.Compose([
+            # T.Resize((height, width)),
+            # T.Grayscale(num_output_channels=3),
+            T.ToTensor(),
+            # normalizer,
+        ])
 
-    test_transformer_diff = T.Compose([
-        # T.Resize((height, width)),
-        # T.RectScale(height, width),
-        # T.Grayscale(num_output_channels=3),
-        T.ToTensor(),
-        # normalizer,
-    ])
+        test_transformer_img = T.Compose([
+            # T.Resize((height, width)),
+            # T.RectScale(height, width),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        test_transformer_diff = T.Compose([
+            # T.Resize((height, width)),
+            # T.RectScale(height, width),
+            # T.Grayscale(num_output_channels=3),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+    if name == "CDMS_174":
+        train_transformer_img = T.Compose([
+            T.RandomCrop(256),
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        train_transformer_diff = T.Compose([
+            T.RandomCrop(256),
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        test_transformer_img = T.Compose([
+            T.CenterCrop(256),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        test_transformer_diff = T.Compose([
+            T.CenterCrop(256),
+            T.ToTensor(),
+            # normalizer,
+        ])
 
     # a = Preprocessor(train_set, root=dataset.images_dir,
     #              transform_img=train_transformer_img, transform_diff=train_transformer_diff)
@@ -73,14 +102,14 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
     # cv2.imwrite('/Users/jason/Documents/GitHub/DAIN_py/tmp/diff.png', diff)
 
     train_loader = DataLoader(
-        Preprocessor(dataset.train, root=dataset.images_dir,
+        Preprocessor(dataset.train, root=dataset.images_dir, dataset_name = name,
                      transform_img=train_transformer_img, transform_diff=train_transformer_diff),
         batch_size=batch_size, num_workers=workers,
         shuffle=True, pin_memory=True, drop_last=True)
 
 
     val_loader = DataLoader(
-        Preprocessor(dataset.val, root=dataset.images_dir,
+        Preprocessor(dataset.val, root=dataset.images_dir, dataset_name = name,
                      transform_img=test_transformer_img,transform_diff=test_transformer_diff),
         batch_size=batch_size, num_workers=workers,
         shuffle=False, pin_memory=True)
@@ -134,6 +163,7 @@ def main(args):
 
     # Criterion
     criterion = nn.CrossEntropyLoss().cuda()
+    # criterion = nn.CrossEntropyLoss()
 
     # Evaluator
     evaluator = Evaluator(img_branch, diff_branch, criterion)
@@ -201,7 +231,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="DAIN")
     # data
-    parser.add_argument('-d', '--dataset', type=str, default='GTOS_256')
+    parser.add_argument('-d', '--dataset', type=str, default='CDMS_174')
     parser.add_argument('-b', '--batch-size', type=int, default=64)
     parser.add_argument('-j', '--workers', type=int, default=4)
     parser.add_argument('--split', type=int, default=1)
