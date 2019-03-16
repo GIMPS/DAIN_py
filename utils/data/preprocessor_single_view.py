@@ -13,11 +13,12 @@ class Preprocessor(object):
     Base Preprocessor
     """
 
-    def __init__(self, dataset, root=None, transform_img=None):
+    def __init__(self, dataset,  dataset_name, root=None, transform_img=None):
         super(Preprocessor, self).__init__()
         self.dataset = dataset
         self.root = root
         self.transform_img = transform_img
+        self.dataset_name = dataset_name
 
     def __len__(self):
         return len(self.dataset)
@@ -32,17 +33,28 @@ class Preprocessor(object):
         fpath = fname
         if self.root is not None:
             fpath = osp.join(self.root, fname)
-        image_path = osp.join(fpath, sorted(os.listdir(fpath))[2])
-        neighbour_path = osp.join(fpath, sorted(os.listdir(fpath))[3])
 
-        # Affine Transform
-        img_ = cv2.imread(image_path)
+        if self.dataset_name == "GTOS_256":
 
-        img_ = Image.fromarray(img_.astype('uint8'), 'RGB')
-        if self.transform_img is not None:
-            img_ = self.transform_img(img_)
+            image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
 
-        return img_,pid
+            img = Image.open(image_path).convert('RGB')
+
+            if self.transform_img is not None:
+                img = self.transform_img(img)
+
+            return img,pid
+
+        if self.dataset_name == "CDMS_174":
+
+            image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
+
+            img = Image.open(image_path).convert('RGB')
+
+            if self.transform_img is not None:
+                img = self.transform_img(img)
+
+            return img,  pid
 
 
 
