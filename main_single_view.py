@@ -147,7 +147,7 @@ def main(args):
 
     # Schedule learning rate
     def adjust_lr(epoch):
-        step_size = 60 if args.arch == 'inception' else 40
+        step_size = args.step_size
         lr = args.lr * (0.1 ** (epoch // step_size))
         for g in img_optimizer.param_groups:
             g['lr'] = lr * g.get('lr_mult', 1)
@@ -207,6 +207,7 @@ if __name__ == '__main__':
                         help="start saving checkpoints after specific epoch")
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--print-freq', type=int, default=1)
+    parser.add_argument('--step_size', type=int, default=30)
 
     # misc
     working_dir = osp.dirname(osp.abspath(__file__))

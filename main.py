@@ -199,7 +199,7 @@ def main(args):
 
     # Schedule learning rate
     def adjust_lr(epoch):
-        step_size = 30
+        step_size =args.step_size
         lr = args.lr * (0.1 ** (epoch // step_size))
         for g in img_optimizer.param_groups:
             g['lr'] = lr * g.get('lr_mult', 1)
@@ -253,6 +253,7 @@ if __name__ == '__main__':
                              "parameters it is 10 times smaller than this")
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight-decay', type=float, default=5e-4)
+    parser.add_argument('--step_size', type=int, default=30)
     # training configs
     parser.add_argument('--resume', type=str, default='', metavar='PATH')
     parser.add_argument('--evaluate', action='store_true',
