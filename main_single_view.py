@@ -197,6 +197,9 @@ if __name__ == '__main__':
     parser.add_argument('--width', type=int,
                         help="input width, default: 128 for resnet*, "
                              "56 for inception")
+    parser.add_argument('--combine-trainval', action='store_true',
+                        help="train and val sets together for training, "
+                             "val set alone for validation")
     # model
     parser.add_argument('-a', '--arch', type=str, default='resnet50',
                         choices=models.names())
@@ -209,6 +212,7 @@ if __name__ == '__main__':
                              "parameters it is 10 times smaller than this")
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight-decay', type=float, default=5e-4)
+    parser.add_argument('--step_size', type=int, default=30)
     # training configs
     parser.add_argument('--resume', type=str, default='', metavar='PATH')
     parser.add_argument('--evaluate', action='store_true',
@@ -218,7 +222,6 @@ if __name__ == '__main__':
                         help="start saving checkpoints after specific epoch")
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--print-freq', type=int, default=1)
-    parser.add_argument('--step_size', type=int, default=30)
 
     # misc
     working_dir = osp.dirname(osp.abspath(__file__))
@@ -227,5 +230,4 @@ if __name__ == '__main__':
     parser.add_argument('--logs-dir', type=str, metavar='PATH',
                         default=osp.join(working_dir, 'logs'))
     main(parser.parse_args())
-
 
