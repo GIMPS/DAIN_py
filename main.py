@@ -23,7 +23,7 @@ from evaluators import Evaluator
 import sys
 from utils.logging import Logger
 
-def get_data(name, split_id, data_dir, height, width, batch_size, workers):
+def get_data(name, split_id, data_dir, height, width, batch_size, workers, combine_trainval):
     root = osp.join(data_dir, name)
     dataset = Dataset(root, split_id=split_id)
 
@@ -102,7 +102,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
     # cv2.imwrite('/Users/jason/Documents/GitHub/DAIN_py/tmp/diff.png', diff)
 
     train_loader = DataLoader(
-        Preprocessor(dataset.train, root=dataset.images_dir, dataset_name = name,
+        Preprocessor(dataset.trainval if combine_trainval else dataset.train, root=dataset.images_dir, dataset_name = name,
                      transform_img=train_transformer_img, transform_diff=train_transformer_diff),
         batch_size=batch_size, num_workers=workers,
         shuffle=True, pin_memory=True, drop_last=True)
@@ -140,7 +140,7 @@ def main(args):
                                   (240, 240)
     dataset, num_classes, train_loader, val_loader, test_loader = \
         get_data(args.dataset, args.split, args.data_dir, args.height,
-                 args.width, args.batch_size, args.workers)
+                 args.width, args.batch_size, args.workers, args.combine_trainval)
 
 
     # Create model
@@ -236,7 +236,8 @@ def main(args):
     checkpoint = load_checkpoint(osp.join(args.logs_dir, 'model_best.pth.tar'))
     img_branch.module.load_state_dict(checkpoint['state_dict_img'])
     diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
-    evaluator.evaluate(test_loader)
+    top1 = evaluator.evaluate(test_loader)
+    print('\n * Test Accuarcy: {:5.1%}\n'.format(top1))
 
 
 if __name__ == '__main__':
@@ -253,6 +254,9 @@ if __name__ == '__main__':
     parser.add_argument('--width', type=int,
                         help="input width, default: 128 for resnet*, "
                              "56 for inception")
+    parser.add_argument('--combine-trainval', action='store_true',
+                        help="train and val sets together for training, "
+                             "val set alone for validation")
     # model
     parser.add_argument('-a', '--arch', type=str, default='resnet50',
                         choices=models.names())
