@@ -152,8 +152,8 @@ def main(args):
     start_epoch = best_top1 = 0
     if args.resume:
         checkpoint = load_checkpoint(args.resume)
-        img_branch.load_state_dict(checkpoint['state_dict_img'])
-        diff_branch.load_state_dict(checkpoint['state_dict_diff'])
+        img_branch.module.load_state_dict(checkpoint['state_dict_img'])
+        diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
         start_epoch = checkpoint['epoch']
         best_top1 = checkpoint['best_top1']
         print("=> Start epoch {}  best top1 {:.1%}"
@@ -234,8 +234,8 @@ def main(args):
     # Final test
     print('Test with best model:')
     checkpoint = load_checkpoint(osp.join(args.logs_dir, 'model_best.pth.tar'))
-    img_branch.load_state_dict(checkpoint['state_dict_img'])
-    diff_branch.load_state_dict(checkpoint['state_dict_diff'])
+    img_branch.module.load_state_dict(checkpoint['state_dict_img'])
+    diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
     evaluator.evaluate(test_loader)
 
 

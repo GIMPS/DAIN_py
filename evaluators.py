@@ -30,8 +30,6 @@ class Evaluator(object):
             losses.update(loss.item(), targets.size(0))
             top1.update(prec1, targets.size(0))
             top3.update(prec3, targets.size(0))
-
-
             batch_time.update(time.time() - end)
             end = time.time()
 
@@ -41,9 +39,10 @@ class Evaluator(object):
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                       'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                       'Prec@3 {top3.val:.3f} ({top3.avg:.3f})'.format(
-                    i, len(data_loader), batch_time=batch_time, loss=losses,
+                    i+1, len(data_loader), batch_time=batch_time, loss=losses,
                     top1=top1, top3=top3))
-            return top1.val
+
+        return top1.val
 
     def _parse_data(self, inputs):
         img, diff, target = inputs
