@@ -196,9 +196,7 @@ if __name__ == '__main__':
     parser.add_argument('--width', type=int,
                         help="input width, default: 128 for resnet*, "
                              "56 for inception")
-    parser.add_argument('--combine-trainval', action='store_true',
-                        help="train and val sets together for training, "
-                             "val set alone for validation")
+    parser.add_argument('--combine-trainval', type=bool, default=False)
     # model
     parser.add_argument('-a', '--arch', type=str, default='resnet50',
                         choices=models.names())
