@@ -114,9 +114,14 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers):
         batch_size=batch_size, num_workers=workers,
         shuffle=False, pin_memory=True)
 
+    test_loader = DataLoader(
+        Preprocessor(dataset.test, root=dataset.images_dir, dataset_name = name,
+                     transform_img=test_transformer_img,transform_diff=test_transformer_diff),
+        batch_size=batch_size, num_workers=workers,
+        shuffle=False, pin_memory=True)
 
 
-    return dataset, num_classes, train_loader, val_loader
+    return dataset, num_classes, train_loader, val_loader, test_loader
 
 
 
@@ -133,7 +138,7 @@ def main(args):
     if args.height is None or args.width is None:
         args.height, args.width = (144, 56) if args.arch == 'inception' else \
                                   (240, 240)
-    dataset, num_classes, train_loader, val_loader = \
+    dataset, num_classes, train_loader, val_loader, test_loader = \
         get_data(args.dataset, args.split, args.data_dir, args.height,
                  args.width, args.batch_size, args.workers)
 
@@ -147,8 +152,6 @@ def main(args):
     start_epoch = best_top1 = 0
     if args.resume:
         checkpoint = load_checkpoint(args.resume)
-        # img_high_level.load_state_dict(checkpoint['state_dict_img'])
-        # diff_high_level.load_state_dict(checkpoint['state_dict_diff'])
         img_branch.load_state_dict(checkpoint['state_dict_img'])
         diff_branch.load_state_dict(checkpoint['state_dict_diff'])
         start_epoch = checkpoint['epoch']
@@ -170,6 +173,8 @@ def main(args):
     if args.evaluate:
         print("Validation:")
         evaluator.evaluate(val_loader)
+        print("Test:")
+        evaluator.evaluate(test_loader)
         return
 
 
@@ -225,6 +230,13 @@ def main(args):
 
         print('\n * Finished epoch {:3d}  top1: {:5.1%}  best: {:5.1%}{}\n'.
               format(epoch, top1, best_top1, ' *' if is_best else ''))
+
+    # Final test
+    print('Test with best model:')
+    checkpoint = load_checkpoint(osp.join(args.logs_dir, 'model_best.pth.tar'))
+    img_branch.load_state_dict(checkpoint['state_dict_img'])
+    diff_branch.load_state_dict(checkpoint['state_dict_diff'])
+    evaluator.evaluate(test_loader)
 
 
 if __name__ == '__main__':

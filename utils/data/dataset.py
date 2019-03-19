@@ -37,17 +37,16 @@ class Dataset(object):
         if num_val >= num or num_val < 0:
             raise ValueError("num_val exceeds total identities {}"
                              .format(num))
-        self.val = self.train_val[:-num_val].tolist()
-        self.train = self.train_val[-num_val:].tolist()
+        self.train = self.train_val[:-num_val].tolist()
+        self.val = self.train_val[-num_val:].tolist()
         self.train_val = self.train_val.tolist()
 
-
         self.test = self.file2_tuple_list(osp.join(self.split_path, 'testlist0' + str(self.split_id) + '.txt'))
+
         self.num_train_ids = len(self.train)
         self.num_val_ids = len(self.val)
-        self.num_test_ids = len(self.val)
+        self.num_test_ids = len(self.test)
         print ('==> (Training images, Validation images, Test images):(', self.num_train_ids,self.num_val_ids , self.num_test_ids,')')
-        return self.train, self.val
 
     @property
     def images_dir(self):
