@@ -37,8 +37,9 @@ class Dataset(object):
         if num_val >= num or num_val < 0:
             raise ValueError("num_val exceeds total identities {}"
                              .format(num))
-        self.val = self.train_val[:-num_val]
-        self.train = self.train_val[-num_val:]
+        self.val = self.train_val[:-num_val].tolist()
+        self.train = self.train_val[-num_val:].tolist()
+        self.train_val = self.train_val.tolist()
 
 
         self.test = self.file2_tuple_list(osp.join(self.split_path, 'testlist0' + str(self.split_id) + '.txt'))
