@@ -236,7 +236,7 @@ def main(args):
     checkpoint = load_checkpoint(osp.join(args.logs_dir, 'model_best.pth.tar'))
     img_branch.module.load_state_dict(checkpoint['state_dict_img'])
     diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
-    top1 = evaluator.evaluate(test_loader)
+    top1 = evaluator.evaluate(val_loader)
     print('\n * Test Accuarcy: {:5.1%}\n'.format(top1))
 
 
