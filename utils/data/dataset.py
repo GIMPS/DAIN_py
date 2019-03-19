@@ -29,17 +29,18 @@ class Dataset(object):
         self.train_val = self.file2_tuple_list(osp.join(self.split_path, 'trainlist0' + str(self.split_id) + '.txt'))
 
         # Randomly split train / val
-        self.train_val = np.asarray(self.train_val)
-        np.random.shuffle(self.train_val)
+        from random import shuffle
+        shuffle(self.train_val)
+        # self.train_val = np.asarray(self.train_val)
+        # np.random.shuffle(self.train_val)
         num = len(self.train_val)
         if isinstance(num_val, float):
             num_val = int(round(num * num_val))
         if num_val >= num or num_val < 0:
             raise ValueError("num_val exceeds total identities {}"
                              .format(num))
-        self.train = self.train_val[:-num_val].tolist()
-        self.val = self.train_val[-num_val:].tolist()
-        self.train_val = self.train_val.tolist()
+        self.train = self.train_val[:-num_val]
+        self.val = self.train_val[-num_val:]
 
         self.test = self.file2_tuple_list(osp.join(self.split_path, 'testlist0' + str(self.split_id) + '.txt'))
 
