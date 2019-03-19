@@ -36,7 +36,7 @@ class Preprocessor(object):
 
         if self.dataset_name == "GTOS_256":
 
-            image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
+            image_path = osp.join(fpath, sorted(os.listdir(fpath))[2])
 
             img = Image.open(image_path).convert('RGB')
 
