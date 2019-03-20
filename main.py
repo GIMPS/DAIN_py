@@ -174,7 +174,9 @@ def main(args):
         print("Validation:")
         evaluator.evaluate(val_loader)
         print("Test:")
-        evaluator.evaluate(test_loader)
+        top1, (gt, pred) = evaluator.evaluate(test_loader)
+        from confusion_matrix import plot_confusion_matrix
+        plot_confusion_matrix(gt, pred, dataset.material_label, args.logs_dir)
         return
 
 
@@ -237,7 +239,8 @@ def main(args):
     img_branch.module.load_state_dict(checkpoint['state_dict_img'])
     diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
     top1, (gt, pred) = evaluator.evaluate(test_loader)
-
+    from confusion_matrix import plot_confusion_matrix
+    plot_confusion_matrix(gt, pred, dataset.material_label, args.logs_dir)
     print('\n * Test Accuarcy: {:5.1%}\n'.format(top1))
 
 

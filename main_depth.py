@@ -250,6 +250,7 @@ def main(args):
         save_checkpoint({
             'state_dict_img': img_branch.module.state_dict(),
             'state_dict_diff': diff_branch.module.state_dict(),
+            'state_dict_depth': depth_branch.module.state_dict(),
             'epoch': epoch + 1,
             'best_top1': best_top1,
         }, is_best, fpath=osp.join(args.logs_dir, 'checkpoint.pth.tar'))
