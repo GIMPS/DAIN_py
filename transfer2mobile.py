@@ -25,8 +25,8 @@ from torch import nn
 import torch
 
 from utils.serialization import load_checkpoint, save_checkpoint
-from trainer_single_view import Trainer
-from evaluator_single_view import Evaluator
+from trainers_single_view import Trainer
+from evaluators_single_view import Evaluator
 import sys
 from utils.logging import Logger
 

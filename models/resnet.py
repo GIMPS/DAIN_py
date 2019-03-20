@@ -19,7 +19,7 @@ class ResNet(nn.Module):
         152: torchvision.models.resnet152,
     }
 
-    def __init__(self, depth, pretrained=True, cut_layer='layer3', num_classes = 0):
+    def __init__(self, depth, pretrained=True, cut_layer='layer3', num_classes=0, num_features=0):
         super(ResNet, self).__init__()
 
         self.pretrained = pretrained
@@ -30,8 +30,21 @@ class ResNet(nn.Module):
         out_planes = self.base.fc.in_features
 
         self.num_classes = num_classes
-        # Change the num_features to CNN output channels
-        self.num_features = out_planes
+
+        self.num_features = num_features
+        self.has_embedding = num_features > 0
+
+        # Append new layers
+        if self.has_embedding:
+            self.feat = nn.Linear(out_planes, self.num_features)
+            self.feat_bn = nn.BatchNorm1d(self.num_features)
+            init.kaiming_normal_(self.feat.weight, mode='fan_out')
+            init.constant_(self.feat.bias, 0)
+            init.constant_(self.feat_bn.weight, 1)
+            init.constant_(self.feat_bn.bias, 0)
+        else:
+            # Change the num_features to CNN output channels
+            self.num_features = out_planes
 
         if self.num_classes > 0:
             self.classifier = nn.Linear(self.num_features, self.num_classes)
@@ -52,7 +65,7 @@ class ResNet(nn.Module):
             if name == cut_layer:
                 next_module_belong = 'high_level'
 
-    def forward(self, x, fusion_feature=None, fusion_fc=None):
+    def forward(self, x, fusion_feature=None, fusion_vector=None):
         for _, layer in enumerate(self.low_level_modules):
             x = layer(x)
         feature_map = x
@@ -62,10 +75,18 @@ class ResNet(nn.Module):
             x = layer(x)
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
+
+        if self.has_embedding:
+            x = self.feat(x)
+            x = self.feat_bn(x)
+            x = F.relu(x)
+
+        feature_vector = x
+
+        if fusion_vector is not None:
+            x = x + fusion_vector
         x = self.classifier(x)
-        if fusion_fc is not None:
-            x = (x + fusion_fc) / 2
-        return feature_map, x
+        return feature_map, feature_vector, x
 
 
 def resnet18(**kwargs):

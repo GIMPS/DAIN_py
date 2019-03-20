@@ -9,7 +9,7 @@ import os.path as osp
 import numpy as np
 
 from utils.data import Dataset
-from utils.data.preprocessor import Preprocessor
+from utils.data.preprocessor_depth import Preprocessor
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
 
@@ -18,8 +18,8 @@ from torch import nn
 import torch
 
 from utils.serialization import load_checkpoint, save_checkpoint
-from trainers import Trainer
-from evaluators import Evaluator
+from trainers_depth import Trainer
+from evaluators_depth import Evaluator
 import sys
 from utils.logging import Logger
 
@@ -31,62 +31,75 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
                              std=[0.229, 0.224, 0.225])
     num_classes = dataset.num_class
 
-    if name == "GTOS_256":
+    # if name == "GTOS_256":
+    #
+    #     train_transformer_img = T.Compose([
+    #         # T.Resize((height, width)),
+    #         T.ToTensor(),
+    #         # normalizer,
+    #     ])
+    #
+    #     train_transformer_diff = T.Compose([
+    #         # T.Resize((height, width)),
+    #         # T.Grayscale(num_output_channels=3),
+    #         T.ToTensor(),
+    #         # normalizer,
+    #     ])
+    #
+    #     test_transformer_img = T.Compose([
+    #         # T.Resize((height, width)),
+    #         # T.RectScale(height, width),
+    #         T.ToTensor(),
+    #         # normalizer,
+    #     ])
+    #
+    #     test_transformer_diff = T.Compose([
+    #         # T.Resize((height, width)),
+    #         # T.RectScale(height, width),
+    #         # T.Grayscale(num_output_channels=3),
+    #         T.ToTensor(),
+    #         # normalizer,
+    #     ])
 
-        train_transformer_img = T.Compose([
-            # T.Resize((height, width)),
-            T.ToTensor(),
-            # normalizer,
-        ])
+    # if name == "CDMS_174":
+    train_transformer_img = T.Compose([
+        T.RandomCrop(256),
+        T.RandomHorizontalFlip(),
+        T.ToTensor(),
+        # normalizer,
+    ])
 
-        train_transformer_diff = T.Compose([
-            # T.Resize((height, width)),
-            # T.Grayscale(num_output_channels=3),
-            T.ToTensor(),
-            # normalizer,
-        ])
+    train_transformer_diff = T.Compose([
+        T.RandomCrop(256),
+        T.RandomHorizontalFlip(),
+        T.ToTensor(),
+        # normalizer,
+    ])
 
-        test_transformer_img = T.Compose([
-            # T.Resize((height, width)),
-            # T.RectScale(height, width),
-            T.ToTensor(),
-            # normalizer,
-        ])
+    train_transformer_depth = T.Compose([
+        T.RandomCrop(256),
+        T.RandomHorizontalFlip(),
+        T.ToTensor(),
+        # normalizer,
+    ])
 
-        test_transformer_diff = T.Compose([
-            # T.Resize((height, width)),
-            # T.RectScale(height, width),
-            # T.Grayscale(num_output_channels=3),
-            T.ToTensor(),
-            # normalizer,
-        ])
+    test_transformer_img = T.Compose([
+        T.CenterCrop(256),
+        T.ToTensor(),
+        # normalizer,
+    ])
 
-    if name == "CDMS_174":
-        train_transformer_img = T.Compose([
-            T.RandomCrop(256),
-            T.RandomHorizontalFlip(),
-            T.ToTensor(),
-            # normalizer,
-        ])
+    test_transformer_diff = T.Compose([
+        T.CenterCrop(256),
+        T.ToTensor(),
+        # normalizer,
+    ])
 
-        train_transformer_diff = T.Compose([
-            T.RandomCrop(256),
-            T.RandomHorizontalFlip(),
-            T.ToTensor(),
-            # normalizer,
-        ])
-
-        test_transformer_img = T.Compose([
-            T.CenterCrop(256),
-            T.ToTensor(),
-            # normalizer,
-        ])
-
-        test_transformer_diff = T.Compose([
-            T.CenterCrop(256),
-            T.ToTensor(),
-            # normalizer,
-        ])
+    test_transformer_depth = T.Compose([
+        T.CenterCrop(256),
+        T.ToTensor(),
+        # normalizer,
+    ])
 
     # a = Preprocessor(train_set, root=dataset.images_dir,
     #              transform_img=train_transformer_img, transform_diff=train_transformer_diff)
@@ -103,20 +116,20 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
 
     train_loader = DataLoader(
         Preprocessor(dataset.train_val if combine_trainval else dataset.train, root=dataset.images_dir, dataset_name = name,
-                     transform_img=train_transformer_img, transform_diff=train_transformer_diff),
+                     transform_img=train_transformer_img, transform_diff=train_transformer_diff, transform_depth=train_transformer_depth),
         batch_size=batch_size, num_workers=workers,
         shuffle=True, pin_memory=True, drop_last=True)
 
 
     val_loader = DataLoader(
         Preprocessor(dataset.val, root=dataset.images_dir, dataset_name = name,
-                     transform_img=test_transformer_img,transform_diff=test_transformer_diff),
+                     transform_img=test_transformer_img,transform_diff=test_transformer_diff, transform_depth=test_transformer_depth),
         batch_size=batch_size, num_workers=workers,
         shuffle=False, pin_memory=True)
 
     test_loader = DataLoader(
         Preprocessor(dataset.test, root=dataset.images_dir, dataset_name = name,
-                     transform_img=test_transformer_img,transform_diff=test_transformer_diff),
+                     transform_img=test_transformer_img,transform_diff=test_transformer_diff, transform_depth=test_transformer_depth),
         batch_size=batch_size, num_workers=workers,
         shuffle=False, pin_memory=True)
 
@@ -147,6 +160,7 @@ def main(args):
 
     img_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes)
     diff_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes)
+    depth_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes=num_classes)
 
     # Load from checkpoint
     start_epoch = best_top1 = 0
@@ -154,6 +168,7 @@ def main(args):
         checkpoint = load_checkpoint(args.resume)
         img_branch.module.load_state_dict(checkpoint['state_dict_img'])
         diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
+        depth_branch.module.load_state_dict(checkpoint['state_depth_diff'])
         start_epoch = checkpoint['epoch']
         best_top1 = checkpoint['best_top1']
         print("=> Start epoch {}  best top1 {:.1%}"
@@ -161,6 +176,7 @@ def main(args):
 
     img_branch = nn.DataParallel(img_branch).cuda()
     diff_branch = nn.DataParallel(diff_branch).cuda()
+    depth_branch = nn.DataParallel(depth_branch).cuda()
     # img_branch = nn.DataParallel(img_branch)
     # diff_branch = nn.DataParallel(diff_branch)
 
@@ -169,7 +185,7 @@ def main(args):
     # criterion = nn.CrossEntropyLoss()
 
     # Evaluator
-    evaluator = Evaluator(img_branch, diff_branch, criterion)
+    evaluator = Evaluator(img_branch, diff_branch, depth_branch, criterion)
     if args.evaluate:
         print("Validation:")
         evaluator.evaluate(val_loader)
@@ -190,6 +206,12 @@ def main(args):
         {'params': diff_branch.module.classifier.parameters(), 'lr_mult': 1},
     ]
 
+    depth_param_groups = [
+        {'params': depth_branch.module.low_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': depth_branch.module.high_level_modules.parameters(), 'lr_mult': 0.1},
+        {'params': depth_branch.module.classifier.parameters(), 'lr_mult': 1},
+    ]
+
     img_optimizer = torch.optim.SGD(img_param_groups, lr=args.lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay,
@@ -198,9 +220,13 @@ def main(args):
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay,
                                 nesterov=True)
+    depth_optimizer = torch.optim.SGD(diff_param_groups, lr=args.lr,
+                                momentum=args.momentum,
+                                weight_decay=args.weight_decay,
+                                nesterov=True)
 
     # Trainer
-    trainer = Trainer(img_branch, diff_branch, criterion)
+    trainer = Trainer(img_branch, diff_branch, depth_branch, criterion)
 
     # Schedule learning rate
     def adjust_lr(epoch):
@@ -214,7 +240,7 @@ def main(args):
     # Start training
     for epoch in range(start_epoch, args.epochs):
         adjust_lr(epoch)
-        trainer.train(epoch, train_loader, img_optimizer, diff_optimizer)
+        trainer.train(epoch, train_loader, img_optimizer, depth_optimizer, diff_optimizer)
         if epoch < args.start_save:
             continue
         top1 = evaluator.evaluate(val_loader)
@@ -236,6 +262,7 @@ def main(args):
     checkpoint = load_checkpoint(osp.join(args.logs_dir, 'model_best.pth.tar'))
     img_branch.module.load_state_dict(checkpoint['state_dict_img'])
     diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
+    depth_branch.module.load_state_dict(checkpoint['state_dict_depth'])
     top1 = evaluator.evaluate(test_loader)
     print('\n * Test Accuarcy: {:5.1%}\n'.format(top1))
 

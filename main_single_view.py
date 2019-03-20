@@ -18,8 +18,8 @@ from torch import nn
 import torch
 
 from utils.serialization import load_checkpoint, save_checkpoint
-from trainer_single_view import Trainer
-from evaluator_single_view import Evaluator
+from trainers_single_view import Trainer
+from evaluators_single_view import Evaluator
 import sys
 from utils.logging import Logger
 
@@ -64,7 +64,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
 
 
     train_loader = DataLoader(
-        Preprocessor(dataset.trainval if combine_trainval else dataset.train, root=dataset.images_dir, dataset_name = name,
+        Preprocessor(dataset.train_val if combine_trainval else dataset.train, root=dataset.images_dir, dataset_name = name,
                      transform_img=train_transformer_img),
         batch_size=batch_size, num_workers=workers,
         shuffle=True, pin_memory=True, drop_last=True)

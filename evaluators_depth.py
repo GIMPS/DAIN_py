@@ -3,16 +3,17 @@ from utils.meters import AverageMeter
 import time
 
 class Evaluator(object):
-    def __init__(self, img_model, diff_model, criterion):
+    def __init__(self, img_model, diff_model, depth_model, criterion):
         super(Evaluator, self).__init__()
         self.img_model = img_model
         self.diff_model = diff_model
+        self.depth_model = depth_model
         self.criterion = criterion
 
     def evaluate(self, data_loader, print_freq = 1):
         self.img_model.eval()
         self.diff_model.eval()
-
+        self.depth_model.eval()
         batch_time = AverageMeter()
         data_time = AverageMeter()
         losses = AverageMeter()
@@ -44,16 +45,18 @@ class Evaluator(object):
         return top1.avg
 
     def _parse_data(self, inputs):
-        img, diff, target = inputs
+        img, diff, depth, target = inputs
         img = img.float()
         diff = diff.float()
+        depth = depth.float()
         target = target.cuda()
-        return (img, diff), target
+        return (img, diff, depth), target
 
     def _forward(self,inputs, targets):
-        img, diff = inputs
-        img_feature_map, img_feature_vector, _ = self.img_model(img)
-        _, _, outputs = self.diff_model(diff, img_feature_map, img_feature_vector)
+        img, diff, depth = inputs
+        img_feature_map, img_vector, _ = self.img_model(img)
+        depth_feature_map, depth_vector,_ = self.depth_model(depth, img_feature_map, img_vector)
+        _, _, outputs = self.diff_model(diff, depth_feature_map, depth_vector)
         loss = self.criterion(outputs, targets)
         prec1, prec3 = accuracy(outputs, targets, topk=(1,3))
         return loss, prec1, prec3

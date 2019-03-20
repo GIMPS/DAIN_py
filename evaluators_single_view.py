@@ -51,7 +51,7 @@ class Evaluator(object):
 
     def _forward(self,inputs, targets):
         img= inputs
-        img_feature_map, outputs = self.img_model(img)
+        _, _, outputs = self.img_model(img)
         loss = self.criterion(outputs, targets)
         prec1, prec3 = accuracy(outputs, targets, topk=(1,3))
         return loss, prec1, prec3

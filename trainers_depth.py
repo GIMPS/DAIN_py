@@ -8,13 +8,17 @@ from utils.meters import AverageMeter
 
 
 class Trainer(object):
-    def __init__(self, img_model, criterion):
+    def __init__(self, img_model, diff_model, depth_model, criterion):
         super(Trainer, self).__init__()
         self.img_model = img_model
+        self.diff_model = diff_model
+        self.depth_model = depth_model
         self.criterion = criterion
 
-    def train(self, epoch, data_loader, optimizer1, print_freq=1):
+    def train(self, epoch, data_loader, optimizer1, optimizer2, optimizer3, print_freq=1):
         self.img_model.train()
+        self.diff_model.train()
+        self.depth_model.train()
 
         batch_time = AverageMeter()
         data_time = AverageMeter()
@@ -32,8 +36,12 @@ class Trainer(object):
             precisions.update(prec1, targets.size(0))
 
             optimizer1.zero_grad()
+            optimizer2.zero_grad()
+            optimizer3.zero_grad()
             loss.backward()
             optimizer1.step()
+            optimizer2.step()
+            optimizer3.step()
 
             batch_time.update(time.time() - end)
             end = time.time()
@@ -51,14 +59,18 @@ class Trainer(object):
                               precisions.val, precisions.avg))
 
     def _parse_data(self, inputs):
-        img, target = inputs
+        img, diff, depth, target = inputs
         img = img.float()
+        diff = diff.float()
+        depth = depth.float()
         target = target.cuda()
-        return img, target
+        return (img, diff, depth), target
 
     def _forward(self,inputs, targets):
-        img = inputs
-        img_feature_map, outputs = self.img_model(img)
+        img, diff, depth = inputs
+        img_feature_map, img_vector, _ = self.img_model(img)
+        depth_feature_map, depth_vector,_ = self.depth_model(depth, img_feature_map, img_vector)
+        _, _, outputs = self.diff_model(diff, depth_feature_map, depth_vector)
         loss = self.criterion(outputs, targets)
         prec, = accuracy(outputs, targets)
         return loss, prec
