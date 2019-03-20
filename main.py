@@ -217,7 +217,7 @@ def main(args):
         trainer.train(epoch, train_loader, img_optimizer, diff_optimizer)
         if epoch < args.start_save:
             continue
-        top1 = evaluator.evaluate(val_loader)
+        top1, _ = evaluator.evaluate(val_loader)
 
         is_best = top1 > best_top1
         best_top1 = max(top1, best_top1)
@@ -236,7 +236,8 @@ def main(args):
     checkpoint = load_checkpoint(osp.join(args.logs_dir, 'model_best.pth.tar'))
     img_branch.module.load_state_dict(checkpoint['state_dict_img'])
     diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
-    top1 = evaluator.evaluate(test_loader)
+    top1, (gt, pred) = evaluator.evaluate(test_loader)
+
     print('\n * Test Accuarcy: {:5.1%}\n'.format(top1))
 
 
