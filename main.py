@@ -159,13 +159,13 @@ def main(args):
         print("=> Start epoch {}  best top1 {:.1%}"
               .format(start_epoch, best_top1))
 
-    # img_branch = nn.DataParallel(img_branch).cuda()
-    # diff_branch = nn.DataParallel(diff_branch).cuda()
+    img_branch = nn.DataParallel(img_branch).cuda()
+    diff_branch = nn.DataParallel(diff_branch).cuda()
     img_branch = nn.DataParallel(img_branch)
     diff_branch = nn.DataParallel(diff_branch)
 
     # Criterion
-    # criterion = nn.CrossEntropyLoss().cuda()
+    criterion = nn.CrossEntropyLoss().cuda()
     criterion = nn.CrossEntropyLoss()
 
     # Evaluator

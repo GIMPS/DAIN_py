@@ -56,7 +56,7 @@ class Evaluator(object):
         img, diff, target = inputs
         img = img.float()
         diff = diff.float()
-        # target = target.cuda()
+        target = target.cuda()
         return (img, diff), target
 
     def _forward(self,inputs, targets):
