@@ -37,8 +37,10 @@ class Evaluator(object):
             batch_time.update(time.time() - end)
             end = time.time()
 
-            pred.append(outputs)
-            gt.append(targets)
+            outputs = outputs.view(-1)
+            targets = targets.view(-1)
+            pred += outputs.detach().numpy().tolist()
+            gt += targets.detach().numpy().tolist()
 
             if (i+1) % print_freq == 0:
                 print('Test: [{0}/{1}]\t'
@@ -54,7 +56,7 @@ class Evaluator(object):
         img, diff, target = inputs
         img = img.float()
         diff = diff.float()
-        target = target.cuda()
+        # target = target.cuda()
         return (img, diff), target
 
     def _forward(self,inputs, targets):
@@ -63,6 +65,7 @@ class Evaluator(object):
         _, _, outputs = self.diff_model(diff, img_feature_map, img_feature_vector)
         loss = self.criterion(outputs, targets)
         prec1, prec3 = accuracy(outputs, targets, topk=(1,3))
-        return loss, prec1, prec3, outputs
+        _, pred = outputs.topk(1)
+        return loss, prec1, prec3, pred
 
 

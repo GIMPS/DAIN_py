@@ -6,8 +6,6 @@ from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 import os.path as osp
 
-
-
 def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
                           normalize=False,
                           title=None,
@@ -21,7 +19,13 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
             title = 'Normalized confusion matrix'
         else:
             title = 'Confusion matrix, without normalization'
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    classes = np.array(classes)
 
+    print(y_true)
+    print(y_pred)
+    print(classes)
     # Compute confusion matrix
     cm = confusion_matrix(y_true, y_pred)
     # Only use the labels that appear in the data

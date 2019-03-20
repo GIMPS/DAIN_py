@@ -159,14 +159,14 @@ def main(args):
         print("=> Start epoch {}  best top1 {:.1%}"
               .format(start_epoch, best_top1))
 
-    img_branch = nn.DataParallel(img_branch).cuda()
-    diff_branch = nn.DataParallel(diff_branch).cuda()
-    # img_branch = nn.DataParallel(img_branch)
-    # diff_branch = nn.DataParallel(diff_branch)
+    # img_branch = nn.DataParallel(img_branch).cuda()
+    # diff_branch = nn.DataParallel(diff_branch).cuda()
+    img_branch = nn.DataParallel(img_branch)
+    diff_branch = nn.DataParallel(diff_branch)
 
     # Criterion
-    criterion = nn.CrossEntropyLoss().cuda()
-    # criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss().cuda()
+    criterion = nn.CrossEntropyLoss()
 
     # Evaluator
     evaluator = Evaluator(img_branch, diff_branch, criterion)
@@ -240,7 +240,7 @@ def main(args):
     diff_branch.module.load_state_dict(checkpoint['state_dict_diff'])
     top1, (gt, pred) = evaluator.evaluate(test_loader)
     from confusion_matrix import plot_confusion_matrix
-    plot_confusion_matrix(gt, pred, dataset.material_label, args.logs_dir)
+    plot_confusion_matrix(gt, pred, dataset.classes, args.logs_dir)
     print('\n * Test Accuarcy: {:5.1%}\n'.format(top1))
 
 

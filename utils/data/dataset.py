@@ -9,6 +9,7 @@ class Dataset(object):
         self.num_train_ids, self.num_val_ids = 0, 0
         self.num_class = 0
         self.material_label = {}
+        self.classes = []
         self.split_path = osp.join(self.root, 'splits')
         self.load()
 
@@ -21,6 +22,7 @@ class Dataset(object):
             label,material_class = line.split(' ')
             if material_class not in self.material_label.keys():
                 self.material_label[material_class]=label
+                self.classes.append(material_class)
         self.num_class = len(self.material_label)
 
 
