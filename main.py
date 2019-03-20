@@ -161,12 +161,12 @@ def main(args):
 
     img_branch = nn.DataParallel(img_branch).cuda()
     diff_branch = nn.DataParallel(diff_branch).cuda()
-    img_branch = nn.DataParallel(img_branch)
-    diff_branch = nn.DataParallel(diff_branch)
+    # img_branch = nn.DataParallel(img_branch)
+    # diff_branch = nn.DataParallel(diff_branch)
 
     # Criterion
     criterion = nn.CrossEntropyLoss().cuda()
-    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss()
 
     # Evaluator
     evaluator = Evaluator(img_branch, diff_branch, criterion)
