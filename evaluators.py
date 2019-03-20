@@ -39,8 +39,8 @@ class Evaluator(object):
 
             outputs = outputs.view(-1)
             targets = targets.view(-1)
-            pred += outputs.detach().numpy().tolist()
-            gt += targets.detach().numpy().tolist()
+            pred += outputs.detach().cpu().numpy().tolist()
+            gt += targets.detach().cpu().numpy().tolist()
 
             if (i+1) % print_freq == 0:
                 print('Test: [{0}/{1}]\t'
