@@ -37,6 +37,7 @@ class Evaluator(object):
             batch_time.update(time.time() - end)
             end = time.time()
 
+            # for confusion matrix
             outputs = outputs.view(-1)
             targets = targets.view(-1)
             pred += outputs.detach().cpu().numpy().tolist()
@@ -65,7 +66,10 @@ class Evaluator(object):
         _, _, outputs = self.diff_model(diff, img_feature_map, img_feature_vector)
         loss = self.criterion(outputs, targets)
         prec1, prec3 = accuracy(outputs, targets, topk=(1,3))
+
+        # for confusion matrix
         _, pred = outputs.topk(1)
+
         return loss, prec1, prec3, pred
 
 

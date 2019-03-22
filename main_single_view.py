@@ -130,6 +130,10 @@ def main(args):
     if args.evaluate:
         print("Validation:")
         evaluator.evaluate(val_loader)
+        print("Test:")
+        top1, (gt, pred) = evaluator.evaluate(test_loader)
+        from confusion_matrix import plot_confusion_matrix
+        plot_confusion_matrix(gt, pred, dataset.material_label, args.logs_dir)
         return
 
 
@@ -161,7 +165,7 @@ def main(args):
         trainer.train(epoch, train_loader, img_optimizer)
         if epoch < args.start_save:
             continue
-        top1 = evaluator.evaluate(val_loader)
+        top1, _ = evaluator.evaluate(val_loader)
 
         is_best = top1 > best_top1
         best_top1 = max(top1, best_top1)
@@ -178,7 +182,9 @@ def main(args):
     print('Test with best model:')
     checkpoint = load_checkpoint(osp.join(args.logs_dir, 'model_best.pth.tar'))
     img_branch.module.load_state_dict(checkpoint['state_dict_img'])
-    top1 = evaluator.evaluate(test_loader)
+    top1, (gt, pred) = evaluator.evaluate(test_loader)
+    from confusion_matrix import plot_confusion_matrix
+    plot_confusion_matrix(gt, pred, dataset.classes, args.logs_dir)
     print('\n * Test Accuarcy: {:5.1%}\n'.format(top1))
 
 

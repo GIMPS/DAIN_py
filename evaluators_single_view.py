@@ -17,13 +17,17 @@ class Evaluator(object):
         top1 = AverageMeter()
         top3 = AverageMeter()
 
+        # for confusion matrix
+        gt = []
+        pred = []
+
         end = time.time()
 
         for i, inputs in enumerate(data_loader):
             data_time.update(time.time() - end)
 
             inputs, targets = self._parse_data(inputs)
-            loss, prec1, prec3 = self._forward(inputs, targets)
+            loss, prec1, prec3, outputs = self._forward(inputs, targets)
 
             losses.update(loss.item(), targets.size(0))
             top1.update(prec1, targets.size(0))
@@ -33,6 +37,12 @@ class Evaluator(object):
             batch_time.update(time.time() - end)
             end = time.time()
 
+            # for confusion matrix
+            outputs = outputs.view(-1)
+            targets = targets.view(-1)
+            pred += outputs.detach().cpu().numpy().tolist()
+            gt += targets.detach().cpu().numpy().tolist()
+
             if (i+1) % print_freq == 0:
                 print('Test: [{0}/{1}]\t'
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
@@ -41,7 +51,7 @@ class Evaluator(object):
                       'Prec@3 {top3.val:.3f} ({top3.avg:.3f})'.format(
                     i, len(data_loader), batch_time=batch_time, loss=losses,
                     top1=top1, top3=top3))
-        return top1.avg
+        return top1.avg, (gt, pred)
 
     def _parse_data(self, inputs):
         img, target = inputs
@@ -54,6 +64,10 @@ class Evaluator(object):
         _, _, outputs = self.img_model(img)
         loss = self.criterion(outputs, targets)
         prec1, prec3 = accuracy(outputs, targets, topk=(1,3))
-        return loss, prec1, prec3
+
+        # for confusion matrix
+        _, pred = outputs.topk(1)
+
+        return loss, prec1, prec3, pred
 
 

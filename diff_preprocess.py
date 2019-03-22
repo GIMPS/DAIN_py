@@ -10,8 +10,10 @@ import numpy as np
 
 
 def make_diff(fpath, diff_path):
-    image_path = osp.join(fpath, sorted(os.listdir(fpath))[2])
-    neighbour_path= osp.join(fpath, sorted(os.listdir(fpath))[3])
+    # image_path = osp.join(fpath, sorted(os.listdir(fpath))[2])
+    # neighbour_path= osp.join(fpath, sorted(os.listdir(fpath))[3])
+    image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
+    neighbour_path= osp.join(fpath, 'RectifiedWideShot.jpg')
 
     # Affine Transform
     img_ = cv2.imread(image_path)
@@ -94,7 +96,7 @@ def make_diff(fpath, diff_path):
 if __name__ == '__main__':
     working_dir = osp.dirname(osp.abspath(__file__))
     data_dir = osp.join(working_dir, 'data')
-    dataset = 'GTOS_256'
+    dataset = 'CDMS_174'
     dataset_dir = osp.join(data_dir, dataset)
     img_dir = osp.join(dataset_dir, 'images')
     diff_dir = osp.join(dataset_dir, 'diff')
