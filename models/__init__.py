@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from .vgg import *
 from .resnet import *
+from .resnet_var import *
 
 __factory = {
     'vgg11': vgg11,
@@ -11,6 +12,7 @@ __factory = {
     'resnet50': resnet50,
     'resnet101': resnet101,
     'resnet152': resnet152,
+    'Resnet_var': ResNet_var,
 }
 
 

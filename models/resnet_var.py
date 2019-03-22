@@ -4,13 +4,12 @@ from torch import nn
 from torch.nn import functional as F
 from torch.nn import init
 import torchvision
+import numpy as np
+
+__all__ = ['ResNet_var']
 
 
-__all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152']
-
-
-class ResNet(nn.Module):
+class ResNet_var(nn.Module):
     __factory = {
         18: torchvision.models.resnet18,
         34: torchvision.models.resnet34,
@@ -19,13 +18,15 @@ class ResNet(nn.Module):
         152: torchvision.models.resnet152,
     }
 
-    def __init__(self, depth, pretrained=True, cut_layer='layer3', num_classes=0, num_features=0):
-        super(ResNet, self).__init__()
+    def __init__(self, base_model,  pretrained=True, cut_layer='layer3', num_classes=0, num_features=0):
+        super(ResNet_var, self).__init__()
 
         self.pretrained = pretrained
 
         # Construct base (pretrained) resnet
-        self.base = ResNet.__factory[depth](pretrained=pretrained)
+        # self.base = ResNet.__factory[depth](pretrained=pretrained)
+        self.base_model = base_model
+        self.base = self.base_model.base
 
         out_planes = self.base.fc.in_features
 
@@ -46,13 +47,27 @@ class ResNet(nn.Module):
             # Change the num_features to CNN output channels
             self.num_features = out_planes
 
-        if self.num_classes > 0:
-            self.classifier = nn.Linear(self.num_features, self.num_classes)
-            init.normal_(self.classifier.weight, std=0.001)
-            init.constant_(self.classifier.bias, 0)
+        self.mean_fc = self.base_model.feat
+        # self.mean_fc = nn.Linear(out_planes, num_features)
+        self.var_fc = nn.Linear(out_planes, num_features)
 
-        self.low_level_modules = nn.ModuleList([])
-        self.high_level_modules = nn.ModuleList([])
+        # init.normal_(self.mean_fc.weight, std=0.001)
+        # init.constant_(self.mean_fc.bias, 0)
+
+        # init.constant_(self.var_fc.weight, 1)
+        # init.constant_(self.var_fc.bias, 0)
+
+        init.normal_(self.var_fc.weight, std=0.001)
+        init.constant_(self.var_fc.bias, 0)
+        self.classifier = self.base_model.classifier
+
+        # if self.num_classes > 0:
+        #     self.classifier = nn.Linear(self.num_features, self.num_classes)
+        #     init.normal_(self.classifier.weight, std=0.001)
+        #     init.constant_(self.classifier.bias, 0)
+
+        # self.low_level_modules = nn.ModuleList([])
+        # self.high_level_modules = nn.ModuleList([])
 
         next_module_belong = 'low_level'
         for name, module in self.base._modules.items():
@@ -76,37 +91,26 @@ class ResNet(nn.Module):
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
 
-        if self.has_embedding:
-            x = self.feat(x)
-            x = self.feat_bn(x)
-            x = F.relu(x)
-
+        # if self.has_embedding:
+        #     x = self.feat(x)
+        #     x = self.feat_bn(x)
+        #     x = F.relu(x)
+        #
         feature_vector = x
+        #
+        # if fusion_vector is not None:
+        #     x = x + fusion_vector
 
-        if fusion_vector is not None:
-            x = x + fusion_vector
-
-        
+        if self.training is False:
+            x = self.mean_fc(x)
+            x = F.relu(x)
+            return x
+        else:
+            mean_fv = self.mean_fc(x)
+            var_fv = self.var_fc(x)
+            s = np.random.normal(0, 1)
+            x = mean_fv + s * var_fv
+            x = F.relu(x)
 
         x = self.classifier(x)
         return feature_map, feature_vector, x
-
-
-def resnet18(**kwargs):
-    return ResNet(18, **kwargs)
-
-
-def resnet34(**kwargs):
-    return ResNet(34, **kwargs)
-
-
-def resnet50(**kwargs):
-    return ResNet(50, **kwargs)
-
-
-def resnet101(**kwargs):
-    return ResNet(101, **kwargs)
-
-
-def resnet152(**kwargs):
-    return ResNet(152, **kwargs)
