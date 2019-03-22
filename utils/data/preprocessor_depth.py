@@ -57,7 +57,7 @@ class Preprocessor(object):
                 fpath = osp.join(self.root, fname)
             image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
             diff_path = osp.join(fpath, 'DifferentialAngleImage.jpg')
-            depth_path = osp.join(fpath, 'DisparityMapFilteredNormalized.jpg')
+            depth_path = osp.join(fpath, 'DisparityMap2.jpg')
 
             seed = random.randint(0, 2 ** 32)  # make a seed with numpy generator
 

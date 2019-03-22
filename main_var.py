@@ -215,7 +215,7 @@ if __name__ == '__main__':
     parser.add_argument('--cut-layer', type=str, default='layer2')
     parser.add_argument('--base', type=str, default='', metavar='PATH')
     # optimizer
-    parser.add_argument('--lr', type=float, default=0.01,
+    parser.add_argument('--lr', type=float, default=5e-4,
                         help="learning rate of new parameters, for pretrained "
                              "parameters it is 10 times smaller than this")
     parser.add_argument('--momentum', type=float, default=0.9)

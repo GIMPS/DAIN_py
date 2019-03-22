@@ -63,5 +63,5 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
                     ha="center", va="center",
                     color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
-    plt.savefig(osp.join(save_dir, 'confusion_matirx.png'))
+    plt.savefig(osp.join(save_dir, 'confusion_matirx'+save_dir.split('/')[-1]+'.png'))
     return ax
