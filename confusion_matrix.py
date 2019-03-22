@@ -7,7 +7,7 @@ from sklearn.utils.multiclass import unique_labels
 import os.path as osp
 
 def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
-                          normalize=False,
+                          normalize=True,
                           title=None,
                           cmap=plt.cm.Blues):
     """
