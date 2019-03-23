@@ -51,8 +51,9 @@ class ResNet_var(nn.Module):
 
         # self.mean_fc = self.base_model.feat
         # self.mean_fc = nn.Linear(out_planes, num_features)
-        self.var_fc = nn.Linear(out_planes, num_features)
+        # self.var_fc = nn.Linear(out_planes, num_features)
 
+        self.var_fc = nn.Linear(out_planes, out_planes)
         # init.normal_(self.mean_fc.weight, std=0.001)
         # init.constant_(self.mean_fc.bias, 0)
 
