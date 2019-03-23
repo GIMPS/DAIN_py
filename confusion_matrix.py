@@ -7,7 +7,7 @@ from sklearn.utils.multiclass import unique_labels
 import os.path as osp
 
 def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
-                          normalize=True,
+                          normalize=False,
                           title=None,
                           cmap=plt.cm.Blues):
     """
@@ -23,9 +23,9 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
     y_pred = np.array(y_pred)
     classes = np.array(classes)
 
-    print(y_true)
-    print(y_pred)
-    print(classes)
+    # print(y_true)
+    # print(y_pred)
+    # print(classes)
     # Compute confusion matrix
     cm = confusion_matrix(y_true, y_pred)
     # Only use the labels that appear in the data
@@ -34,9 +34,9 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         print("Normalized confusion matrix")
     else:
-        print('Confusion matrix, without normalization')
+        print('Confusion matrix')
 
-    print(cm)
+    # print(cm)
 
     fig, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
