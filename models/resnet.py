@@ -84,7 +84,7 @@ class ResNet(nn.Module):
         #     x = F.relu(x)
 
         if fusion_vector is not None:
-            x = x + fusion_vector
+            x = (x + fusion_vector)/2
         feature_vector = x
 
         x = self.classifier(x)
