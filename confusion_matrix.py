@@ -37,7 +37,7 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
     # print(cm)
 
     if classes.size > 12:
-        plt.rcParams.update({'font.size': 10})
+        plt.rcParams.update({'font.size': 5})
     fig, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.figure.colorbar(im, ax=ax)
@@ -54,14 +54,15 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
              rotation_mode="anchor")
 
-    # Loop over data dimensions and create text annotations.
-    fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
-            ax.text(j, i, format(cm[i, j], fmt),
-                    ha="center", va="center",
-                    color="white" if cm[i, j] > thresh else "black")
+    if classes.size <= 12:
+        # Loop over data dimensions and create text annotations.
+        fmt = '.2f' if normalize else 'd'
+        thresh = cm.max() / 2.
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                ax.text(j, i, format(cm[i, j], fmt),
+                        ha="center", va="center",
+                        color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
     plt.savefig(osp.join(save_dir, 'confusion_matirx-'+save_dir.split('/')[-1]+'.png'))
     return ax
