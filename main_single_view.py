@@ -128,9 +128,9 @@ def main(args):
     # Evaluator
     evaluator = Evaluator(img_branch, criterion)
     if args.evaluate:
-        print("Validation:")
-        top1, _ = evaluator.evaluate(val_loader)
-        print("Validation acc: {:.1%}".format(top1))
+        # print("Validation:")
+        # top1, _ = evaluator.evaluate(val_loader)
+        # print("Validation acc: {:.1%}".format(top1))
         print("Test:")
         top1, (gt, pred) = evaluator.evaluate(test_loader)
         print("Test acc: {:.1%}".format(top1))

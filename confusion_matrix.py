@@ -16,7 +16,7 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
         if normalize:
             title = 'Normalized confusion matrix'
         else:
-            title = 'Confusion matrix, without normalization'
+            title = 'Confusion matrix'
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     classes = np.array(classes)
@@ -32,10 +32,12 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         print("Normalized confusion matrix")
     else:
-        print('Confusion matrix')
+        print('Start making confusion matrix')
 
     # print(cm)
 
+    if classes.size() > 12:
+        plt.rcParams.update({'font.size': 10})
     fig, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.figure.colorbar(im, ax=ax)
