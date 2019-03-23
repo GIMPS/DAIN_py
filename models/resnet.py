@@ -34,19 +34,19 @@ class ResNet(nn.Module):
         self.num_features = num_features
         self.has_embedding = num_features > 0
 
-        # # Append new layers
-        # if self.has_embedding:
-        #     self.feat = nn.Linear(out_planes, self.num_features)
-        #     self.feat_bn = nn.BatchNorm1d(self.num_features)
-        #     init.kaiming_normal_(self.feat.weight, mode='fan_out')
-        #     init.constant_(self.feat.bias, 0)
-        #     init.constant_(self.feat_bn.weight, 1)
-        #     init.constant_(self.feat_bn.bias, 0)
-        # else:
-        #     # Change the num_features to CNN output channels
-        #     self.num_features = out_planes
+        # Append new layers
+        if self.has_embedding:
+            self.feat = nn.Linear(out_planes, self.num_features)
+            self.feat_bn = nn.BatchNorm1d(self.num_features)
+            init.kaiming_normal_(self.feat.weight, mode='fan_out')
+            init.constant_(self.feat.bias, 0)
+            init.constant_(self.feat_bn.weight, 1)
+            init.constant_(self.feat_bn.bias, 0)
+        else:
+            # Change the num_features to CNN output channels
+            self.num_features = out_planes
 
-        self.num_features = out_planes
+        # self.num_features = out_planes
 
         if self.num_classes > 0:
             self.classifier = nn.Linear(self.num_features, self.num_classes)
@@ -78,16 +78,17 @@ class ResNet(nn.Module):
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
 
-        # if self.has_embedding:
-        #     x = self.feat(x)
-        #     x = self.feat_bn(x)
-        #     x = F.relu(x)
+        if self.has_embedding:
+            x = self.feat(x)
+            # x = self.feat_bn(x)
+            # x = F.relu(x)
 
-        x = self.classifier(x)
 
         feature_vector = x
         if fusion_vector is not None:
-            x = (x + fusion_vector)/2
+            x = x + fusion_vector
+
+        x = self.classifier(x)
 
         return feature_map, feature_vector, x
 
