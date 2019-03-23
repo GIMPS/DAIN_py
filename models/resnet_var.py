@@ -98,7 +98,6 @@ class ResNet_var(nn.Module):
         #     x = self.feat_bn(x)
         #     x = F.relu(x)
         #
-        feature_vector = x
         #
         # if fusion_vector is not None:
         #     x = x + fusion_vector
@@ -116,4 +115,5 @@ class ResNet_var(nn.Module):
             # x = F.relu(x)
 
         x = self.classifier(x)
+        feature_vector = x
         return feature_map, feature_vector, x
