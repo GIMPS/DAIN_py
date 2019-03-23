@@ -54,9 +54,11 @@ class Preprocessor(object):
 
         if self.dataset_name == "CDMS_174":
             if self.root is not None:
+                diff_path = osp.join(self.root[:-6] + 'diff', fname)
                 fpath = osp.join(self.root, fname)
             image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
-            diff_path = osp.join(fpath, 'DifferentialAngleImage.jpg')
+            # diff_path = osp.join(fpath, 'DifferentialAngleImage.jpg')
+            diff_path = osp.join(diff_path, 'diff.png')
             depth_path = osp.join(fpath, 'DisparityMap2.jpg')
 
             seed = random.randint(0, 2 ** 32)  # make a seed with numpy generator
