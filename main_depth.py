@@ -158,9 +158,9 @@ def main(args):
 
     # Create model
 
-    img_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes)
-    diff_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes)
-    depth_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes=num_classes)
+    img_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes, num_features=args.features)
+    diff_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes, num_features=args.features)
+    depth_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes=num_classes, num_features=args.features)
 
     # Load from checkpoint
     start_epoch = best_top1 = 0
@@ -188,9 +188,11 @@ def main(args):
     evaluator = Evaluator(img_branch, diff_branch, depth_branch, criterion)
     if args.evaluate:
         print("Validation:")
-        evaluator.evaluate(val_loader)
+        top1, _ = evaluator.evaluate(val_loader)
+        print("Validation acc: {:.1%}".format(top1))
         print("Test:")
         top1, (gt, pred) = evaluator.evaluate(test_loader)
+        print("Test acc: {:.1%}".format(top1))
         from confusion_matrix import plot_confusion_matrix
         plot_confusion_matrix(gt, pred, dataset.classes, args.logs_dir)
         return
@@ -290,8 +292,8 @@ if __name__ == '__main__':
     # model
     parser.add_argument('-a', '--arch', type=str, default='resnet50',
                         choices=models.names())
-    parser.add_argument('--features', type=int, default=0)
-    parser.add_argument('--dropout', type=float, default=0.5)
+    parser.add_argument('--features', type=int, default=1024)
+    parser.add_argument('--dropout', type=float, default=0)
     parser.add_argument('--cut-layer', type=str, default='layer2')
     # optimizer
     parser.add_argument('--lr', type=float, default=0.01,
