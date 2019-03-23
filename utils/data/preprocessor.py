@@ -49,30 +49,11 @@ class Preprocessor(object):
 
             return img, diff, pid
 
-        # if self.dataset_name == "CDMS_174":
-        #     if self.root is not None:
-        #         fpath = osp.join(self.root, fname)
-        #     image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
-        #     diff_path = osp.join(fpath, 'DifferentialAngleImage.jpg')
-        #     img = Image.open(image_path).convert('RGB')
-        #     seed = random.randint(0, 2 ** 32)  # make a seed with numpy generator
-        #     random.seed(seed)
-        #     if self.transform_img is not None:
-        #         img = self.transform_img(img)
-        #
-        #     random.seed(seed)
-        #     diff = Image.open(diff_path).convert('RGB')
-        #     if self.transform_diff is not None:
-        #         diff = self.transform_diff(diff)
-        #
-        #     return img, diff, pid
-
         if self.dataset_name == "CDMS_174":
             if self.root is not None:
-                diff_path = osp.join(self.root[:-6] + 'diff', fname)
                 fpath = osp.join(self.root, fname)
             image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
-            diff_path = osp.join(diff_path, 'diff.png')
+            diff_path = osp.join(fpath, 'DifferentialAngleImage.jpg')
             img = Image.open(image_path).convert('RGB')
             seed = random.randint(0, 2 ** 32)  # make a seed with numpy generator
             random.seed(seed)
@@ -85,5 +66,24 @@ class Preprocessor(object):
                 diff = self.transform_diff(diff)
 
             return img, diff, pid
+
+        # if self.dataset_name == "CDMS_174":
+        #     if self.root is not None:
+        #         diff_path = osp.join(self.root[:-6] + 'diff', fname)
+        #         fpath = osp.join(self.root, fname)
+        #     image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
+        #     diff_path = osp.join(diff_path, 'diff.png')
+        #     img = Image.open(image_path).convert('RGB')
+        #     seed = random.randint(0, 2 ** 32)  # make a seed with numpy generator
+        #     random.seed(seed)
+        #     if self.transform_img is not None:
+        #         img = self.transform_img(img)
+        #
+        #     random.seed(seed)
+        #     diff = Image.open(diff_path).convert('RGB')
+        #     if self.transform_diff is not None:
+        #         diff = self.transform_diff(diff)
+        #
+        #     return img, diff, pid
     
 
