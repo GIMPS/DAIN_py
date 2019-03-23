@@ -143,7 +143,8 @@ def main(args):
 
 
     img_param_groups = [
-        {'params': img_branch.module.mean_fc.parameters(), 'lr_mult': 1},
+        {'params': img_branch.module.base_model.layer4.parameters(), 'lr_mult': 1},
+        # {'params': img_branch.module.mean_fc.parameters(), 'lr_mult': 1},
         {'params': img_branch.module.var_fc.parameters(), 'lr_mult': 1},
         {'params': img_branch.module.classifier.parameters(), 'lr_mult': 1},
     ]
