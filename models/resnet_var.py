@@ -26,7 +26,7 @@ class ResNet_var(nn.Module):
         # Construct base (pretrained) resnet
         # self.base = ResNet.__factory[depth](pretrained=pretrained)
         self.base_model = base_model
-        self.base = self.base_model.base
+        # self.base = self.base_model.base
 
         out_planes = self.base.fc.in_features
 
@@ -81,12 +81,12 @@ class ResNet_var(nn.Module):
         #         next_module_belong = 'high_level'
 
     def forward(self, x, fusion_feature=None, fusion_vector=None):
-        for _, layer in enumerate(self.base.low_level_modules):
+        for _, layer in enumerate(self.base_model.low_level_modules):
             x = layer(x)
         feature_map = x
         if fusion_feature is not None:
             x = x + fusion_feature
-        for _, layer in enumerate(self.base.high_level_modules):
+        for _, layer in enumerate(self.base_model.high_level_modules):
             x = layer(x)
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
