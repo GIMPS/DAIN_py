@@ -104,7 +104,6 @@ class ResNet_var(nn.Module):
         if self.training is False:
             x = self.mean_fc(x)
             x = F.relu(x)
-            return feature_map, feature_vector, x
         else:
             mean_fv = self.mean_fc(x)
             var_fv = self.var_fc(x)
