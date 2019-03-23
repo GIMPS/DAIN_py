@@ -36,7 +36,7 @@ def plot_confusion_matrix(y_true, y_pred, classes, save_dir,
 
     # print(cm)
 
-    if classes.size() > 12:
+    if classes.size > 12:
         plt.rcParams.update({'font.size': 10})
     fig, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
