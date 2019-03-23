@@ -26,7 +26,7 @@ class ResNet_var(nn.Module):
         # Construct base (pretrained) resnet
         # self.base = ResNet.__factory[depth](pretrained=pretrained)
         self.base_model = base_model
-        # self.base = self.base_model.base
+        self.base = self.base_model.base
 
         out_planes = self.base.fc.in_features
 
