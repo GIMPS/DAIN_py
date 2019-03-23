@@ -172,9 +172,11 @@ def main(args):
     evaluator = Evaluator(img_branch, diff_branch, criterion)
     if args.evaluate:
         print("Validation:")
-        evaluator.evaluate(val_loader)
+        top1, _ = evaluator.evaluate(val_loader)
+        print("Validation acc: {:.1%}".format(top1))
         print("Test:")
         top1, (gt, pred) = evaluator.evaluate(test_loader)
+        print("Test acc: {:.1%}".format(top1))
         from confusion_matrix import plot_confusion_matrix
         plot_confusion_matrix(gt, pred, dataset.classes, args.logs_dir)
         return
