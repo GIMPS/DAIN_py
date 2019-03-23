@@ -12,7 +12,7 @@ __factory = {
     'resnet50': resnet50,
     'resnet101': resnet101,
     'resnet152': resnet152,
-    'Resnet_var': ResNet_var,
+    'ResNet_var': ResNet_var,
 }
 
 
