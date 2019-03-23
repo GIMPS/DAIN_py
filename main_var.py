@@ -136,7 +136,7 @@ def main(args):
         print("Test:")
         top1, (gt, pred) = evaluator.evaluate(test_loader)
         from confusion_matrix import plot_confusion_matrix
-        plot_confusion_matrix(gt, pred, dataset.material_label, args.logs_dir)
+        plot_confusion_matrix(gt, pred, dataset.classes, args.logs_dir)
         return
 
 
