@@ -115,7 +115,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
     # cv2.imwrite('/Users/jason/Documents/GitHub/DAIN_py/tmp/diff.png', diff)
 
     train_loader = DataLoader(
-        Preprocessor(dataset.train_val if combine_trainval else dataset.train, root=dataset.images_dir, dataset_name = name,
+        Preprocessor(dataset.train, root=dataset.images_dir, dataset_name = name,
                      transform_img=train_transformer_img, transform_diff=train_transformer_diff, transform_depth=train_transformer_depth),
         batch_size=batch_size, num_workers=workers,
         shuffle=True, pin_memory=True, drop_last=True)

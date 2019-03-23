@@ -69,16 +69,16 @@ class ResNet_var(nn.Module):
         # self.low_level_modules = nn.ModuleList([])
         # self.high_level_modules = nn.ModuleList([])
 
-        next_module_belong = 'low_level'
-        for name, module in self.base._modules.items():
-            if name == 'avgpool':
-                break
-            if next_module_belong == 'low_level':
-                self.low_level_modules.append(module)
-            else:
-                self.high_level_modules.append(module)
-            if name == cut_layer:
-                next_module_belong = 'high_level'
+        # next_module_belong = 'low_level'
+        # for name, module in self.base._modules.items():
+        #     if name == 'avgpool':
+        #         break
+        #     if next_module_belong == 'low_level':
+        #         self.low_level_modules.append(module)
+        #     else:
+        #         self.high_level_modules.append(module)
+        #     if name == cut_layer:
+        #         next_module_belong = 'high_level'
 
     def forward(self, x, fusion_feature=None, fusion_vector=None):
         for _, layer in enumerate(self.low_level_modules):
