@@ -146,7 +146,7 @@ def main(args):
     # Create model
 
     img_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes, num_features=args.features)
-    diff_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes, num_feature=args.features)
+    diff_branch = models.create(args.arch, cut_layer=args.cut_layer, num_classes = num_classes, num_features=args.features)
 
     # Load from checkpoint
     start_epoch = best_top1 = 0
