@@ -83,10 +83,12 @@ class ResNet(nn.Module):
         #     x = self.feat_bn(x)
         #     x = F.relu(x)
 
-        x = self.classifier(x)
         if fusion_vector is not None:
             x = x + fusion_vector
         feature_vector = x
+
+        x = self.classifier(x)
+
         return feature_map, feature_vector, x
 
 
