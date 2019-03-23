@@ -76,17 +76,13 @@ class ResNet(nn.Module):
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
 
-        if self.has_embedding:
-            x = self.feat(x)
-            x = self.feat_bn(x)
-            x = F.relu(x)
-
+        # if self.has_embedding:
+        #     x = self.feat(x)
+        #     x = self.feat_bn(x)
+        #     x = F.relu(x)
         feature_vector = x
-
         if fusion_vector is not None:
             x = x + fusion_vector
-
-        
 
         x = self.classifier(x)
         return feature_map, feature_vector, x
