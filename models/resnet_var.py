@@ -81,12 +81,12 @@ class ResNet_var(nn.Module):
         #         next_module_belong = 'high_level'
 
     def forward(self, x, fusion_feature=None, fusion_vector=None):
-        for _, layer in enumerate(self.low_level_modules):
+        for _, layer in enumerate(self.base.low_level_modules):
             x = layer(x)
         feature_map = x
         if fusion_feature is not None:
             x = x + fusion_feature
-        for _, layer in enumerate(self.high_level_modules):
+        for _, layer in enumerate(self.base.high_level_modules):
             x = layer(x)
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
