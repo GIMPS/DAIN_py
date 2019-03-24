@@ -114,7 +114,7 @@ class ResNet_var(nn.Module):
             mean_fv = self.mean_fc(x)
             var_fv = self.var_fc(x)
             s = np.random.normal(0, 1)
-            x = mean_fv + s * var_fv
+            x = mean_fv + var_fv
             # x = F.relu(x)
 
 
