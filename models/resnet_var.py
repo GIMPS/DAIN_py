@@ -35,27 +35,27 @@ class ResNet_var(nn.Module):
         self.num_features = num_features
         self.has_embedding = num_features > 0
 
-        # # Append new layers
-        # if self.has_embedding:
-        #     self.feat = nn.Linear(out_planes, self.num_features)
-        #     self.feat_bn = nn.BatchNorm1d(self.num_features)
-        #     init.kaiming_normal_(self.feat.weight, mode='fan_out')
-        #     init.constant_(self.feat.bias, 0)
-        #     init.constant_(self.feat_bn.weight, 1)
-        #     init.constant_(self.feat_bn.bias, 0)
-        # else:
-        #     # Change the num_features to CNN output channels
-        #     self.num_features = out_planes
+        # Append new layers
+        if self.has_embedding:
+            self.feat = nn.Linear(out_planes, self.num_features)
+            self.feat_bn = nn.BatchNorm1d(self.num_features)
+            init.kaiming_normal_(self.feat.weight, mode='fan_out')
+            init.constant_(self.feat.bias, 0)
+            init.constant_(self.feat_bn.weight, 1)
+            init.constant_(self.feat_bn.bias, 0)
+        else:
+            # Change the num_features to CNN output channels
+            self.num_features = out_planes
 
         self.num_features = out_planes
 
         # self.mean_fc = self.base_model.feat
-        # self.mean_fc = nn.Linear(out_planes, num_features)
-        # self.var_fc = nn.Linear(out_planes, num_features)
+        self.mean_fc = nn.Linear(out_planes, out_planes)
+        self.var_fc = nn.Linear(out_planes, out_planes)
 
         self.var_fc = nn.Linear(out_planes, out_planes)
-        # init.normal_(self.mean_fc.weight, std=0.001)
-        # init.constant_(self.mean_fc.bias, 0)
+        init.normal_(self.mean_fc.weight, std=0.001)
+        init.constant_(self.mean_fc.bias, 0)
 
         # init.constant_(self.var_fc.weight, 1)
         # init.constant_(self.var_fc.bias, 0)
@@ -96,15 +96,17 @@ class ResNet_var(nn.Module):
 
         # if self.has_embedding:
         #     x = self.feat(x)
-        #     x = self.feat_bn(x)
-        #     x = F.relu(x)
-        #
+            # x = self.feat_bn(x)
+            # x = F.relu(x)
+
         #
         # if fusion_vector is not None:
         #     x = x + fusion_vector
 
+        x = self.mean_fc(x)
+        # #  for stage 2
         # if self.training is False:
-        #     # x = self.mean_fc(x)
+        #     x = self.mean_fc(x)
         #     # x = F.relu(x)
         #     pass
         # else:
@@ -114,12 +116,12 @@ class ResNet_var(nn.Module):
         #     s = np.random.normal(0, 1)
         #     x = mean_fv + s * var_fv
         #     # x = F.relu(x)
-
-
-        ###for comparison
-        mean_fv = x
-        var_fv = self.var_fc(x)
-        x = mean_fv + var_fv
+        #
+        #
+        # ###for comparison
+        # mean_fv = x
+        # var_fv = self.var_fc(x)
+        # x = mean_fv + var_fv
 
         x = self.classifier(x)
         feature_vector = x

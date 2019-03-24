@@ -12,8 +12,8 @@ import numpy as np
 def make_diff(fpath, diff_path):
     # image_path = osp.join(fpath, sorted(os.listdir(fpath))[2])
     # neighbour_path= osp.join(fpath, sorted(os.listdir(fpath))[3])
-    image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
-    neighbour_path= osp.join(fpath, 'RectifiedWideShot.jpg')
+    image_path = osp.join(fpath, 'NormalShot.jpg')
+    neighbour_path= osp.join(fpath, 'WideShot.jpg')
 
     # Affine Transform
     img_ = cv2.imread(image_path)
@@ -95,8 +95,8 @@ def make_diff(fpath, diff_path):
 
 if __name__ == '__main__':
     working_dir = osp.dirname(osp.abspath(__file__))
-    data_dir = osp.join(working_dir, 'data')
-    dataset = 'CDMS_174'
+    data_dir = "/Users/jason/Desktop/FYP"
+    dataset = 'CDMS_174_HQ'
     dataset_dir = osp.join(data_dir, dataset)
     img_dir = osp.join(dataset_dir, 'images')
     diff_dir = osp.join(dataset_dir, 'diff')
@@ -112,4 +112,3 @@ if __name__ == '__main__':
             cnt += 1
 
     print(cnt," images cannot be successfully aligned")
-
