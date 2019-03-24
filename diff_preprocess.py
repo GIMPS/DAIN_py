@@ -8,17 +8,42 @@ import numpy as np
 
 
 
+def search_in_512(fpath, fname):
+    working_dir = osp.dirname(osp.abspath(__file__))
+    high_res_path = osp.join(working_dir, 'data/GTOS_shape_reconstruction/material')
+    _fpath = fpath.split('/')[-1][2:]
+    high_res_path = osp.join(high_res_path, _fpath)
+    if not osp.isdir(high_res_path):
+        return osp.join(fpath, fname), False
+    for file in os.listdir(high_res_path):
+        if fname.split('_')[-1] in ['high.jpg','low.jpg', 'normal.jpg']:
+            key_idx = int(fname.split('_')[-2][-2:])
+            if file.split('_')[-2][0] != 'i':
+                val_idx = int(file.split('_')[-2][:])
+            else:
+                val_idx = int(file.split('_')[-2][1:])
+            if key_idx == val_idx:
+                return osp.join(high_res_path, file), True
+        else:
+            if fname == file:
+                return osp.join(high_res_path,file), True
+
+    return osp.join(fpath,fname),False
 
 def make_diff(fpath, diff_path):
-    image_path = osp.join(fpath, sorted(os.listdir(fpath))[0])
-    neighbour_path= osp.join(fpath, sorted(os.listdir(fpath))[1])
 
+    image_name = sorted(os.listdir(fpath))[2]
+    neighbour_name= sorted(os.listdir(fpath))[3]
+    image_path, image_found = search_in_512(fpath, image_name)
+    neighbour_path, neighbour_found = search_in_512(fpath, neighbour_name)
+    print('--------')
+    print(image_path)
     # Affine Transform
     img_ = cv2.imread(image_path)
-    img_ = cv2.resize(img_, (512, 512))
+    # img_ = cv2.resize(img_, (512, 512))
     img1 = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)
     img = cv2.imread(neighbour_path)
-    img = cv2.resize(img, (512, 512))
+    # img = cv2.resize(img, (512, 512))
     img2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     mean = np.average(img1)
@@ -115,8 +140,8 @@ def make_diff(fpath, diff_path):
 
 if __name__ == '__main__':
     working_dir = osp.dirname(osp.abspath(__file__))
-    data_dir = "/Users/jason/Desktop/FYP"
-    dataset = 'CDMS_174_HQ'
+    data_dir = "data"
+    dataset = 'GTOS_256'
     dataset_dir = osp.join(data_dir, dataset)
     img_dir = osp.join(dataset_dir, 'images')
     diff_dir = osp.join(dataset_dir, 'diff')
