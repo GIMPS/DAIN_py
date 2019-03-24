@@ -70,9 +70,9 @@ class ResNet(nn.Module):
     def forward(self, x, fusion_feature=None, fusion_vector=None):
         for _, layer in enumerate(self.low_level_modules):
             x = layer(x)
-        feature_map = x
         if fusion_feature is not None:
             x = x + fusion_feature
+        feature_map = x
         for _, layer in enumerate(self.high_level_modules):
             x = layer(x)
         x = F.avg_pool2d(x, x.size()[2:])
@@ -84,10 +84,9 @@ class ResNet(nn.Module):
         #     x = F.relu(x)
 
         x = self.classifier(x)
-        feature_vector = x
         if fusion_vector is not None:
             x = x + fusion_vector
-
+        feature_vector = x
         return feature_map, feature_vector, x
 
 

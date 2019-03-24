@@ -10,10 +10,8 @@ import numpy as np
 
 
 def make_diff(fpath, diff_path):
-    # image_path = osp.join(fpath, sorted(os.listdir(fpath))[2])
-    # neighbour_path= osp.join(fpath, sorted(os.listdir(fpath))[3])
-    image_path = osp.join(fpath, 'NormalShot.jpg')
-    neighbour_path= osp.join(fpath, 'WideShot.jpg')
+    image_path = osp.join(fpath, sorted(os.listdir(fpath))[0])
+    neighbour_path= osp.join(fpath, sorted(os.listdir(fpath))[1])
 
     # Affine Transform
     img_ = cv2.imread(image_path)
@@ -59,7 +57,14 @@ def make_diff(fpath, diff_path):
         # cv2.imwrite(save_path + '/view1.png', img_)
         # cv2.imwrite(save_path + '/view2.png', img)
 
-        dst = cv2.warpPerspective(img_, H, (img_.shape[1], img_.shape[0]))
+        mean = np.average(img1)
+        mmax = np.amax(img1)
+        mmin = np.amin(img1)
+        variance = mmax - mmin
+        lb = mean -variance/2
+        ub = mean + variance/2
+
+        dst = cv2.warpPerspective(img1, H, (img_.shape[1], img_.shape[0]))
         # plt.imshow(img_)
         # plt.show()
         # plt.figure()
@@ -69,10 +74,20 @@ def make_diff(fpath, diff_path):
         # plt.imshow(dst)
         # plt.show()
         # plt.figure()
+
         idx = (dst == 0)
-        img[idx] = 0
+        img2[idx] = mean
         # diff =cv2.cvtColor(img-dst, cv2.COLOR_BGR2GRAY)
-        diff = img-dst
+        diff = np.absolute(img2-dst)
+        # diff = cv2.normalize(diff, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        # diff = cv2.bilateralFilter(diff, 10, 0, 0)
+        # print(diff)
+        # diff = cv2.normalize(diff, None, mmin, mmax, norm_type=cv2.NORM_MINMAX)
+        # diff = cv2.equalizeHist(diff)
+        # diff = cv2.medianBlur(diff,3)
+        # diff = cv2.blur(diff, (3,3))
+        # diff = cv2.GaussianBlur(diff, (3,3),0)
+        # diff = cv2.bilateralFilter(diff, 3, 75, 75)
         # plt.imshow(diff)
         # plt.show()
         # plt.figure()
@@ -81,11 +96,12 @@ def make_diff(fpath, diff_path):
         # cv2.imwrite('/Users/jason/Documents/GitHub/DAIN_py/tmp/crop2.png', img)
         # cv2.imwrite(save_path+'/diff.png',diff)
         # diff = cv2.bilateralFilter(diff, 9, 75, 75)
+        diff = cv2.resize(diff, (256, 256))
         is_align = True
     except:
         # diff = cv2.cvtColor(img - img_, cv2.COLOR_BGR2GRAY)
-        diff = img - img_
-    diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+        diff = img2 - img1
+    # diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
     diff = np.stack((diff,) * 3, axis=-1)
     cv2.imwrite(diff_path+'/diff.png',diff)
 
@@ -95,8 +111,8 @@ def make_diff(fpath, diff_path):
 
 if __name__ == '__main__':
     working_dir = osp.dirname(osp.abspath(__file__))
-    data_dir = "/Users/jason/Desktop/FYP"
-    dataset = 'CDMS_174_HQ'
+    data_dir = "."
+    dataset = 'tmp'
     dataset_dir = osp.join(data_dir, dataset)
     img_dir = osp.join(dataset_dir, 'images')
     diff_dir = osp.join(dataset_dir, 'diff')

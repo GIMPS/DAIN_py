@@ -103,21 +103,21 @@ class ResNet_var(nn.Module):
         # if fusion_vector is not None:
         #     x = x + fusion_vector
 
-        x = self.mean_fc(x)
-        # #  for stage 2
-        # if self.training is False:
-        #     x = self.mean_fc(x)
-        #     # x = F.relu(x)
-        #     pass
-        # else:
-        #     mean_fv = x
-        #     # mean_fv = self.mean_fc(x)
-        #     var_fv = self.var_fc(x)
-        #     s = np.random.normal(0, 1)
-        #     x = mean_fv + s * var_fv
-        #     # x = F.relu(x)
-        #
-        #
+        # x = self.mean_fc(x)
+        #  for stage 2
+        if self.training is False:
+            x = self.mean_fc(x)
+            # x = F.relu(x)
+            pass
+        else:
+            # mean_fv = x
+            mean_fv = self.mean_fc(x)
+            var_fv = self.var_fc(x)
+            s = np.random.normal(0, 1)
+            x = mean_fv + s * var_fv
+            # x = F.relu(x)
+
+
         # ###for comparison
         # mean_fv = x
         # var_fv = self.var_fc(x)
