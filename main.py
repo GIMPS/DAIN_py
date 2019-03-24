@@ -40,7 +40,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
         ])
 
         train_transformer_diff = T.Compose([
-            # T.Resize((height, width)),
+            T.Resize((240, 240)),
             # T.Grayscale(num_output_channels=3),
             T.ToTensor(),
             # normalizer,
@@ -54,7 +54,7 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
         ])
 
         test_transformer_diff = T.Compose([
-            # T.Resize((height, width)),
+            T.Resize((240, 240)),
             # T.RectScale(height, width),
             # T.Grayscale(num_output_channels=3),
             T.ToTensor(),
