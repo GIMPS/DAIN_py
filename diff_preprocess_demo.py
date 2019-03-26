@@ -9,24 +9,24 @@ import numpy as np
 
 
 def search_in_512(fpath, fname):
-    working_dir = osp.dirname(osp.abspath(__file__))
-    high_res_path = osp.join(working_dir, 'data/GTOS_shape_reconstruction/material')
-    _fpath = fpath.split('/')[-1][2:]
-    high_res_path = osp.join(high_res_path, _fpath)
-    if not osp.isdir(high_res_path):
-        return osp.join(fpath, fname), False
-    for file in os.listdir(high_res_path):
-        if fname.split('_')[-1] in ['high.jpg','low.jpg', 'normal.jpg']:
-            key_idx = int(fname.split('_')[-2][-2:])
-            if file.split('_')[-2][0] != 'i':
-                val_idx = int(file.split('_')[-2][:])
-            else:
-                val_idx = int(file.split('_')[-2][1:])
-            if key_idx == val_idx:
-                return osp.join(high_res_path, file), True
-        else:
-            if fname == file:
-                return osp.join(high_res_path,file), True
+    # working_dir = osp.dirname(osp.abspath(__file__))
+    # high_res_path = osp.join(working_dir, 'data/GTOS_shape_reconstruction/material')
+    # _fpath = fpath.split('/')[-1][2:]
+    # high_res_path = osp.join(high_res_path, _fpath)
+    # if not osp.isdir(high_res_path):
+    #     return osp.join(fpath, fname), False
+    # for file in os.listdir(high_res_path):
+    #     if fname.split('_')[-1] in ['high.jpg','low.jpg', 'normal.jpg']:
+    #         key_idx = int(fname.split('_')[-2][-2:])
+    #         if file.split('_')[-2][0] != 'i':
+    #             val_idx = int(file.split('_')[-2][:])
+    #         else:
+    #             val_idx = int(file.split('_')[-2][1:])
+    #         if key_idx == val_idx:
+    #             return osp.join(high_res_path, file), True
+    #     else:
+    #         if fname == file:
+    #             return osp.join(high_res_path,file), True
 
     return osp.join(fpath,fname),False
 
@@ -38,8 +38,8 @@ def make_diff(fpath, diff_path):
     neighbour_list = os.listdir(fpath)
     if '.DS_Store' in neighbour_list:
         neighbour_list.remove('.DS_Store')
-    image_name = sorted(image_list)[0]
-    neighbour_name= sorted(neighbour_list)[1]
+    image_name = sorted(image_list)[1]
+    neighbour_name= sorted(neighbour_list)[2]
     # image_name = sorted(os.listdir(fpath))[2]
     # neighbour_name= sorted(os.listdir(fpath))[3]
     image_path, image_found = search_in_512(fpath, image_name)
@@ -69,16 +69,16 @@ def make_diff(fpath, diff_path):
         kp1, des1 = sift.detectAndCompute(img1, None)
         kp2, des2 = sift.detectAndCompute(img2, None)
 
-        # img3 = cv2.drawKeypoints(img1, kp1, img1)
-        # cv2.imwrite(diff_path+'/sift_keypoints1.png', img3)
-        # cv2.imwrite(diff_path+'/original1.png', img1)
-        # img3 = cv2.drawKeypoints(img2, kp2, img2)
-        # cv2.imwrite(diff_path+'/sift_keypoints2.png', img3)
-        # cv2.imwrite(diff_path+'/original2.png', img2)
+        img3 = cv2.drawKeypoints(img1, kp1, img1)
+        cv2.imwrite(diff_path+'/sift_keypoints1.png', img3)
+        cv2.imwrite(diff_path+'/original1.png', img1)
+        img3 = cv2.drawKeypoints(img2, kp2, img2)
+        cv2.imwrite(diff_path+'/sift_keypoints2.png', img3)
+        cv2.imwrite(diff_path+'/original2.png', img2)
 
-        # stereo = cv2.StereoBM_create()
-        # disparity = stereo.compute(img1, img2)
-        # cv2.imwrite(diff_path+'/disparity.png', disparity)
+        stereo = cv2.StereoBM_create()
+        disparity = stereo.compute(img1, img2)
+        cv2.imwrite(diff_path+'/disparity.png', disparity)
 
         bf = cv2.BFMatcher()
         matches = bf.knnMatch(des1, des2, k=2)
@@ -148,8 +148,8 @@ def make_diff(fpath, diff_path):
 
 if __name__ == '__main__':
     working_dir = osp.dirname(osp.abspath(__file__))
-    data_dir = "data"
-    dataset = 'GTOS_256'
+    data_dir = "."
+    dataset = 'tmp'
     dataset_dir = osp.join(data_dir, dataset)
     img_dir = osp.join(dataset_dir, 'images')
     diff_dir = osp.join(dataset_dir, 'diff')
