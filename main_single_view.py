@@ -62,6 +62,21 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
             # normalizer,
         ])
 
+    if name == "CDMS_160":
+        train_transformer_img = T.Compose([
+            T.RandomCrop(256),
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        test_transformer_img = T.Compose([
+            T.CenterCrop(256),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+
 
     train_loader = DataLoader(
         Preprocessor(dataset.train, root=dataset.images_dir, dataset_name = name,

@@ -88,6 +88,34 @@ def get_data(name, split_id, data_dir, height, width, batch_size, workers, combi
             # normalizer,
         ])
 
+
+    if name == "CDMS_160":
+        train_transformer_img = T.Compose([
+            T.RandomCrop(256),
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        train_transformer_diff = T.Compose([
+            T.RandomCrop(256),
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        test_transformer_img = T.Compose([
+            T.CenterCrop(256),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
+        test_transformer_diff = T.Compose([
+            T.CenterCrop(256),
+            T.ToTensor(),
+            # normalizer,
+        ])
+
     # a = Preprocessor(train_set, root=dataset.images_dir,
     #              transform_img=train_transformer_img, transform_diff=train_transformer_diff)
     # p = a[800]
