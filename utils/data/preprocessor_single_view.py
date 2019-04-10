@@ -56,5 +56,16 @@ class Preprocessor(object):
 
             return img,  pid
 
+        if self.dataset_name == "CDMS_160":
+
+            image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
+
+            img = Image.open(image_path).convert('RGB')
+
+            if self.transform_img is not None:
+                img = self.transform_img(img)
+
+            return img,  pid
+
 
 

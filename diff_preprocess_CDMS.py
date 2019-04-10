@@ -6,30 +6,6 @@ from PIL import Image
 import cv2
 import numpy as np
 
-
-
-def search_in_512(fpath, fname):
-    # working_dir = osp.dirname(osp.abspath(__file__))
-    # high_res_path = osp.join(working_dir, 'data/GTOS_shape_reconstruction/material')
-    # _fpath = fpath.split('/')[-1][2:]
-    # high_res_path = osp.join(high_res_path, _fpath)
-    # if not osp.isdir(high_res_path):
-    #     return osp.join(fpath, fname), False
-    # for file in os.listdir(high_res_path):
-    #     if fname.split('_')[-1] in ['high.jpg','low.jpg', 'normal.jpg']:
-    #         key_idx = int(fname.split('_')[-2][-2:])
-    #         if file.split('_')[-2][0] != 'i':
-    #             val_idx = int(file.split('_')[-2][:])
-    #         else:
-    #             val_idx = int(file.split('_')[-2][1:])
-    #         if key_idx == val_idx:
-    #             return osp.join(high_res_path, file), True
-    #     else:
-    #         if fname == file:
-    #             return osp.join(high_res_path,file), True
-
-    return osp.join(fpath,fname),False
-
 def make_diff(fpath, diff_path):
 
     image_list = os.listdir(fpath)
@@ -38,14 +14,8 @@ def make_diff(fpath, diff_path):
     neighbour_list = os.listdir(fpath)
     if '.DS_Store' in neighbour_list:
         neighbour_list.remove('.DS_Store')
-    image_name = sorted(image_list)[0]
-    neighbour_name= sorted(neighbour_list)[1]
-    # image_name = sorted(os.listdir(fpath))[2]
-    # neighbour_name= sorted(os.listdir(fpath))[3]
-    image_path, image_found = search_in_512(fpath, image_name)
-    neighbour_path, neighbour_found = search_in_512(fpath, neighbour_name)
-    print('--------')
-    print(image_path)
+    image_path = osp.join(fpath, 'NormalShot.jpg')
+    neighbour_path = osp.join(fpath, 'WideShot.jpg')
     # Affine Transform
     img_ = cv2.imread(image_path)
     img_ = cv2.resize(img_, (512, 512))
@@ -147,8 +117,8 @@ def make_diff(fpath, diff_path):
 
 if __name__ == '__main__':
     working_dir = osp.dirname(osp.abspath(__file__))
-    data_dir = "."
-    dataset = 'tmp'
+    data_dir = "data"
+    dataset = 'CDMS_160_HQ'
     dataset_dir = osp.join(data_dir, dataset)
     img_dir = osp.join(dataset_dir, 'images')
     diff_dir = osp.join(dataset_dir, 'diff')

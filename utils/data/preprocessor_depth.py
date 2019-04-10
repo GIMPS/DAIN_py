@@ -82,3 +82,34 @@ class Preprocessor(object):
 
 
 
+
+        if self.dataset_name == "CDMS_160":
+            if self.root is not None:
+                diff_path = osp.join(self.root[:-6] + 'diff', fname)
+                fpath = osp.join(self.root, fname)
+            image_path = osp.join(fpath, 'RectifiedNormalShot.jpg')
+            # diff_path = osp.join(fpath, 'DifferentialAngleImage.jpg')
+            diff_path = osp.join(diff_path, 'diff.png')
+            depth_path = osp.join(fpath, 'DisparityMapFilteredNormalized.jpg')
+
+            seed = random.randint(0, 2 ** 32)  # make a seed with numpy generator
+
+            img = Image.open(image_path).convert('RGB')
+            random.seed(seed)
+            if self.transform_img is not None:
+                img = self.transform_img(img)
+
+            random.seed(seed)
+            diff = Image.open(diff_path).convert('RGB')
+            if self.transform_diff is not None:
+                diff = self.transform_diff(diff)
+
+            random.seed(seed)
+            depth= Image.open(depth_path).convert('RGB')
+            if self.transform_depth is not None:
+                depth = self.transform_depth(depth)
+
+            return img, diff, depth, pid
+
+
+
