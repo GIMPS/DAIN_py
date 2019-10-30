@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 
+import torch
 from torch import nn
 from torch.nn import functional as F
 from torch.nn import init
 import torchvision
 import numpy as np
+
 
 __all__ = ['ResNet_var']
 
@@ -49,16 +51,17 @@ class ResNet_var(nn.Module):
 
         self.num_features = out_planes
 
-        # self.mean_fc = self.base_model.feat
         self.mean_fc = nn.Linear(out_planes, out_planes)
         self.var_fc = nn.Linear(out_planes, out_planes)
 
-        self.var_fc = nn.Linear(out_planes, out_planes)
+        self.decoder = nn.Sequential(
+            nn.Linear(self.out_planes, self.out_planes),
+            nn.ReLU(),
+            nn.Linear(self.out_planes, self.out_planes),
+            nn.Sigmoid(),
+        )
         init.normal_(self.mean_fc.weight, std=0.001)
         init.constant_(self.mean_fc.bias, 0)
-
-        # init.constant_(self.var_fc.weight, 1)
-        # init.constant_(self.var_fc.bias, 0)
 
         init.normal_(self.var_fc.weight, std=0.001)
         init.constant_(self.var_fc.bias, 0)
@@ -83,6 +86,11 @@ class ResNet_var(nn.Module):
         #     if name == cut_layer:
         #         next_module_belong = 'high_level'
 
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+
     def forward(self, x, fusion_feature=None, fusion_vector=None):
         for _, layer in enumerate(self.base_model.low_level_modules):
             x = layer(x)
@@ -94,35 +102,26 @@ class ResNet_var(nn.Module):
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
 
-        # if self.has_embedding:
-        #     x = self.feat(x)
-            # x = self.feat_bn(x)
-            # x = F.relu(x)
-
-        #
-        # if fusion_vector is not None:
-        #     x = x + fusion_vector
-
-        # x = self.mean_fc(x)
         #  for stage 2
-        if self.training is False:
-            x = self.mean_fc(x)
-            # x = F.relu(x)
-            pass
-        else:
+        if self.training:
             # mean_fv = x
             mean_fv = self.mean_fc(x)
             var_fv = self.var_fc(x)
-            s = np.random.normal(0, 1)
-            x = mean_fv + var_fv
-            # x = F.relu(x)
 
+            # kl divergence
+            loss_kl = -0.5 * torch.sum(1 + var_fv - mean_fv.pow(2) - var_fv.exp()) / mean_fv.size(0)
 
-        # ###for comparison
-        # mean_fv = x
-        # var_fv = self.var_fc(x)
-        # x = mean_fv + var_fv
-
+            # reconstruction loss
+            x = self.reparameterize(mean_fv, var_fv)
+            decode_x = self.decoder(x)
+            loss_recon = F.mse_loss(decode_x, x.detach())
+        else:
+            x = self.mean_fc(x)
         x = self.classifier(x)
+        if fusion_vector is not None:
+            x = x + fusion_vector
         feature_vector = x
-        return feature_map, feature_vector, x
+        if self.training:
+            return feature_map, feature_vector, x, loss_kl, loss_recon
+        else:
+            return feature_map, feature_vector, x
